@@ -1,0 +1,41 @@
+/* Validation Styles */
+
+/* Error styling for inputs */
+.input-error {
+    border-color: var(--error-color) !important;
+    background-color: rgba(216, 80, 80, 0.05) !important;
+}
+
+/* Success styling for inputs */
+.input-success {
+    border-color: var(--success-color) !important;
+    background-color: rgba(80, 176, 130, 0.05) !important;
+}
+
+/* Validation error messages */
+.validation-error {
+    color: var(--error-color);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    text-align: left;
+    font-weight: 400;
+    padding-left: 0.25rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animation for error messages */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Adjust spacing for form groups with validation errors */
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+/* Add some space between validation error and next form group */
+.form-group + .form-group {
+    margin-top: 0.5rem;
+}
