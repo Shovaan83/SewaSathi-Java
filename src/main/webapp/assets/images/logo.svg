@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60" viewBox="0 0 200 60">
+  <style>
+    .logo-text { font-family: 'Arial', sans-serif; font-weight: bold; }
+    .hands { fill: #ff6b6b; }
+    .heart { fill: #ff6b6b; }
+  </style>
+  <g transform="translate(10, 30)">
+    <!-- Hands and heart icon -->
+    <path class="hands" d="M25,15 C23,10 20,8 15,5 C13,10 15,15 20,15 L25,15 Z" />
+    <path class="heart" d="M30,10 C30,5 25,0 20,5 C15,0 10,5 10,10 C10,15 20,20 20,20 C20,20 30,15 30,10 Z" />
+    <path class="hands" d="M15,15 C17,10 20,8 25,5 C27,10 25,15 20,15 L15,15 Z" />
+    
+    <!-- Text -->
+    <text x="45" y="7" class="logo-text" fill="#ff6b6b" font-size="20">SewaSathi</text>
+  </g>
+</svg> 

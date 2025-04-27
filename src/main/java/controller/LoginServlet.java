@@ -6,6 +6,7 @@ import model.User;
 import model.UserDAO;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @WebServlet(name = "LoginServlet", value = "/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -14,6 +15,18 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Generate a CSRF token for the login form
+        HttpSession session = request.getSession(true);
+        
+        // Ensure csrf token is set
+        if (session.getAttribute("csrfToken") == null) {
+            String csrfToken = UUID.randomUUID().toString();
+            session.setAttribute("csrfToken", csrfToken);
+            System.out.println("New CSRF token generated in LoginServlet GET: " + csrfToken);
+        } else {
+            System.out.println("Existing CSRF token in LoginServlet GET: " + session.getAttribute("csrfToken"));
+        }
+        
         // Check if user is already logged in via remember me cookie
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -21,14 +34,14 @@ public class LoginServlet extends HttpServlet {
                 if (REMEMBER_ME_COOKIE_NAME.equals(cookie.getName())) {
                     String[] credentials = decodeCookieValue(cookie.getValue());
                     if (credentials != null && credentials.length == 2) {
-                        String username = credentials[0];
+                        String email = credentials[0];
                         String password = credentials[1];
-                        User user = UserDAO.getUserByEmailOrUsername(username, password);
+                        User user = UserDAO.getUserByEmail(email, password);
                         if (user != null) {
-                            // Auto login successful
-                            HttpSession session = request.getSession();
+                            // Auto login successful - use existing session
                             session.setAttribute("user", user);
                             session.setAttribute("loggedIn", true);
+                            session.setAttribute("isAdmin", user.isAdmin());
                             response.sendRedirect(request.getContextPath() + "/");
                             return;
                         }
@@ -51,50 +64,68 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Get form parameters
-        String username = request.getParameter("username");
+        String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String rememberMe = request.getParameter("rememberMe");
-
+        
+        // Print debug info
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            System.out.println("Session exists in LoginServlet POST. CSRF token: " + session.getAttribute("csrfToken"));
+        } else {
+            System.out.println("No session in LoginServlet POST");
+            session = request.getSession(true);
+        }
+        
         // Validate input
-        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            request.setAttribute("error", "Username and password are required");
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            request.setAttribute("error", "Email and password are required");
             request.getRequestDispatcher("/WEB-INF/view/login.jsp").forward(request, response);
             return;
         }
 
         // Authenticate user
-        User user = UserDAO.getUserByEmailOrUsername(username, password);
+        User user = UserDAO.getUserByEmail(email, password);
 
         if (user != null) {
-            // Authentication successful
+            // Authentication successful - use existing session
+            
             // Store user in session
-            HttpSession session = request.getSession();
             session.setAttribute("user", user);
             session.setAttribute("loggedIn", true);
-
+            session.setAttribute("isAdmin", user.isAdmin());
+            
+            // Create a new CSRF token
+            String csrfToken = UUID.randomUUID().toString();
+            session.setAttribute("csrfToken", csrfToken);
+            System.out.println("New CSRF token set in LoginServlet POST after successful login: " + csrfToken);
+            
             // Handle remember me functionality
+            String rememberMe = request.getParameter("rememberMe");
             if (rememberMe != null && rememberMe.equals("on")) {
-                String cookieValue = encodeCookieValue(username, password);
+                String cookieValue = encodeCookieValue(email, password);
                 Cookie rememberMeCookie = new Cookie(REMEMBER_ME_COOKIE_NAME, cookieValue);
                 rememberMeCookie.setMaxAge(COOKIE_MAX_AGE);
                 rememberMeCookie.setPath(request.getContextPath());
                 response.addCookie(rememberMeCookie);
             }
 
-            // Redirect to homepage
-            response.sendRedirect(request.getContextPath() + "/");
+            // Redirect based on role
+            if (user.isAdmin()) {
+                response.sendRedirect(request.getContextPath() + "/AdminDashboardServlet");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/");
+            }
         } else {
             // Authentication failed
-            request.setAttribute("error", "Invalid username or password");
+            request.setAttribute("error", "Invalid email or password");
             request.getRequestDispatcher("/WEB-INF/view/login.jsp").forward(request, response);
         }
     }
 
-    // Helper method to encode username and password for cookie
-    private String encodeCookieValue(String username, String password) {
+    // Helper method to encode email and password for cookie
+    private String encodeCookieValue(String email, String password) {
         // Simple encoding - in production, use more secure methods
-        return username + ":"+password;
+        return email + ":"+password;
     }
 
     // Helper method to decode cookie value

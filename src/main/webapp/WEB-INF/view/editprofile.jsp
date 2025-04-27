@@ -11,8 +11,10 @@
 
     // Get the first letter of the user's name for the avatar
     String firstLetter = "";
-    if (user.getFullName() != null && !user.getFullName().isEmpty()) {
-        firstLetter = user.getFullName().substring(0, 1).toUpperCase();
+    if (user.getFull_name() != null && !user.getFull_name().isEmpty()) {
+        firstLetter = user.getFull_name().substring(0, 1).toUpperCase();
+    } else {
+        firstLetter = user.getEmail().substring(0, 1).toUpperCase();
     }
 %>
 <!DOCTYPE html>
@@ -20,91 +22,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Your Profile | <%= user.getFullName() %></title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <title>Edit Your Profile | <%= user.getFull_name() %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #2f80ed;
-            --primary-dark: #1a73e8;
-            --secondary: #34ca96;
-            --text-dark: #333;
-            --text-light: #666;
-            --background: #f8f9fa;
-            --danger: #e74c3c;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --light-gray: #e9ecef;
+            --primary-color: #ff6b6b;
+            --secondary-color: #ff8e8e;
+            --dark-color: #2d3748;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --gray-color: #6c757d;
+            --border-radius: 0.5rem;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background);
-            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
         }
         
-        .crowdfund-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
         
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-            margin-bottom: 30px;
+        .back-link {
+            margin-bottom: 1.5rem;
         }
         
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .logo span {
-            color: var(--secondary);
-        }
-        
-        .top-nav-links a {
-            margin-left: 20px;
+        .back-link a {
+            color: var(--primary-color);
             text-decoration: none;
-            color: var(--text-dark);
+            display: inline-flex;
+            align-items: center;
             font-weight: 500;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
         
-        .top-nav-links a:hover {
-            color: var(--primary);
+        .back-link a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .back-link i {
+            margin-right: 0.5rem;
         }
         
         .profile-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border-radius: 10px;
-            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--border-radius);
+            padding: 2rem;
             text-align: center;
-            margin-bottom: 30px;
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
         }
         
         .profile-image {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             overflow: hidden;
-            margin-bottom: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 1rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
         }
         
         .profile-image img {
@@ -114,135 +106,151 @@
         }
         
         .avatar {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background-color: var(--secondary);
+            background-color: rgba(255, 255, 255, 0.2);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 500;
-            margin-bottom: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 1rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-username {
+            opacity: 0.8;
+            font-size: 1rem;
         }
         
         .form-container {
             background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
         }
         
         .form-section {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
         }
         
         .form-section:last-child {
             border-bottom: none;
             margin-bottom: 0;
+            padding-bottom: 0;
         }
         
         .form-section-title {
             font-size: 1.2rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             font-weight: 500;
-            color: var(--text-dark);
+            color: var(--dark-color);
         }
         
         .form-help {
+            margin-top: 0.5rem;
             font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 5px;
+            color: var(--gray-color);
         }
         
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--light-gray);
-            border-radius: 5px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: var(--transition);
         }
         
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
         }
         
         .form-group input:disabled {
-            background-color: var(--light-gray);
+            background-color: #f5f5f5;
             cursor: not-allowed;
         }
         
         .form-actions {
             display: flex;
-            justify-content: flex-start;
-            margin-top: 30px;
+            gap: 1rem;
         }
         
         .button-primary {
-            background-color: var(--primary);
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            border-radius: var(--border-radius);
+            font-weight: 500;
             text-decoration: none;
-            display: inline-block;
-            margin-right: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            font-size: 1rem;
         }
         
         .button-primary:hover {
-            background-color: var(--primary-dark);
+            background-color: var(--secondary-color);
         }
         
         .button-secondary {
-            background-color: white;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
             display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            font-size: 1rem;
         }
         
         .button-secondary:hover {
-            background-color: var(--primary);
-            color: white;
+            background-color: #e9ecef;
         }
         
         .file-upload {
-            border: 2px dashed var(--light-gray);
-            padding: 20px;
+            border: 2px dashed #ddd;
+            padding: 2rem;
             text-align: center;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: border-color 0.3s;
+            transition: var(--transition);
             position: relative;
         }
         
         .file-upload:hover {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
         }
         
         .file-upload input[type="file"] {
@@ -256,77 +264,63 @@
         }
         
         .current-image {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .current-image p {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
         }
         
         .current-image img {
             max-width: 150px;
-            border-radius: 5px;
-            display: block;
-            margin-top: 10px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
         
         .image-preview {
-            display: none;
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .image-preview p {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
         }
         
         .image-preview img {
             max-width: 150px;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
         
         .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
         }
         
         .alert-error {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        
-        .back-link a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-        
-        .back-link a:hover {
-            text-decoration: underline;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(220, 53, 69, 0.2);
         }
     </style>
 </head>
 <body>
+<jsp:include page="/WEB-INF/components/navbar.jsp" />
 
-<div class="crowdfund-container">
-    <div class="top-nav">
-        <div class="logo">Sewa<span>Sathi</span></div>
-        <div class="top-nav-links">
-            <a href="${pageContext.request.contextPath}/index.jsp"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#"><i class="fas fa-compass"></i> Discover</a>
-            <a href="#"><i class="fas fa-lightbulb"></i> Start a Campaign</a>
-            <a href="${pageContext.request.contextPath}/LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
-    </div>
-
+<div class="container">
     <div class="back-link">
-        <a href="${pageContext.request.contextPath}/UserProfileServlet"><i class="fas fa-arrow-left"></i> Back to Profile</a>
+        <a href="${pageContext.request.contextPath}/UserProfileServlet">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
     </div>
 
     <div class="profile-header">
-        <% if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) { %>
+        <% if (user.getProfile_picture_url() != null && !user.getProfile_picture_url().isEmpty()) { %>
         <div class="profile-image">
-            <img src="data:image/jpeg;base64,<%= java.util.Base64.getEncoder().encodeToString(user.getProfilePicture()) %>" alt="Profile Picture">
+            <img src="<%= user.getProfile_picture_url() %>" alt="Profile Picture">
         </div>
         <% } else { %>
         <div class="avatar">
@@ -334,26 +328,23 @@
         </div>
         <% } %>
 
-        <h1>Edit Your Profile</h1>
-        <p>Update your information to help backers know you better</p>
+        <h1 class="profile-name">Edit Your Profile</h1>
+        <p class="profile-username">Update your information to help others know you better</p>
     </div>
 
     <!-- Display error message if present -->
     <% if (request.getAttribute("error") != null) { %>
     <div class="alert alert-error">
-        <%= request.getAttribute("error") %>
+        <i class="fas fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
     </div>
     <% } %>
 
     <div class="form-container">
         <form action="${pageContext.request.contextPath}/UpdateProfileServlet" method="post" class="form" enctype="multipart/form-data">
+            
             <div class="form-section">
-                <div class="form-section-title">Account Information</div>
-
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" value="<%= user.getUsername() %>" disabled>
-                    <p class="form-help">Username cannot be changed</p>
+                <div class="form-section-title">
+                    <i class="fas fa-user-circle"></i> Account Information
                 </div>
 
                 <div class="form-group">
@@ -364,52 +355,58 @@
             </div>
 
             <div class="form-section">
-                <div class="form-section-title">Personal Information</div>
+                <div class="form-section-title">
+                    <i class="fas fa-id-card"></i> Personal Information
+                </div>
 
                 <div class="form-group">
-                    <label for="fullName">Full Name*</label>
-                    <input type="text" id="fullName" name="fullName" value="<%= user.getFullName() != null ? user.getFullName() : "" %>" required>
+                    <label for="full_name">Full Name*</label>
+                    <input type="text" id="full_name" name="full_name" value="<%= user.getFull_name() != null ? user.getFull_name() : "" %>" required>
                     <p class="form-help">This name will be displayed on your profile and campaigns</p>
                 </div>
             </div>
 
             <div class="form-section">
-                <div class="form-section-title">Contact Information</div>
+                <div class="form-section-title">
+                    <i class="fas fa-address-book"></i> Contact Information
+                </div>
 
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" value="<%= user.getPhone() != null ? user.getPhone() : "" %>">
+                    <input type="tel" id="phone" name="phone" value="" placeholder="e.g., 9876543210">
                     <p class="form-help">For account recovery and campaign updates</p>
                 </div>
 
                 <div class="form-group">
                     <label for="address">Address</label>
-                    <input type="text" id="address" name="address" value="<%= user.getAddress() != null ? user.getAddress() : "" %>">
+                    <input type="text" id="address" name="address" value="" placeholder="e.g., Kathmandu, Nepal">
                     <p class="form-help">This helps us tailor local campaigns to you</p>
                 </div>
             </div>
 
             <div class="form-section">
-                <div class="form-section-title">Profile Picture</div>
+                <div class="form-section-title">
+                    <i class="fas fa-camera"></i> Profile Picture
+                </div>
 
-                <% if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) { %>
+                <% if (user.getProfile_picture_url() != null && !user.getProfile_picture_url().isEmpty()) { %>
                 <div class="current-image">
                     <p>Current Profile Picture:</p>
-                    <img src="data:image/jpeg;base64,<%= java.util.Base64.getEncoder().encodeToString(user.getProfilePicture()) %>" alt="Current Profile Picture">
+                    <img src="<%= user.getProfile_picture_url() %>" alt="Current Profile Picture">
                 </div>
                 <% } %>
 
                 <!-- New Image Preview -->
-                <div id="imagePreview" class="image-preview">
+                <div id="imagePreview" class="image-preview" style="display: none;">
                     <p>New Profile Picture Preview:</p>
                     <img id="previewImg" src="#" alt="New Profile Picture Preview">
                 </div>
 
                 <div class="form-group">
-                    <label for="profilePicture">Upload New Profile Picture</label>
+                    <label for="profile_picture">Upload New Profile Picture</label>
                     <div class="file-upload">
-                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*" onchange="previewImage(this)">
-                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--primary); margin-bottom: 10px;"></i>
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*" onchange="previewImage(this)">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <p>Click to select a file or drag and drop</p>
                         <p class="form-help">Recommended size: 300x300 pixels. Max size: 5MB.</p>
                     </div>
@@ -417,7 +414,9 @@
             </div>
 
             <div class="form-section">
-                <div class="form-section-title">Confirm Changes</div>
+                <div class="form-section-title">
+                    <i class="fas fa-lock"></i> Confirm Changes
+                </div>
 
                 <div class="form-group">
                     <label for="password">Enter Password to Save Changes*</label>
@@ -427,12 +426,18 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="button-primary">Save Changes</button>
-                <a href="${pageContext.request.contextPath}/UserProfileServlet" class="button-secondary">Cancel</a>
+                <button type="submit" class="button-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="${pageContext.request.contextPath}/UserProfileServlet" class="button-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
             </div>
         </form>
     </div>
 </div>
+
+<jsp:include page="/WEB-INF/components/footer.jsp" />
 
 <script>
     function previewImage(input) {
@@ -454,6 +459,5 @@
         }
     }
 </script>
-
 </body>
 </html>

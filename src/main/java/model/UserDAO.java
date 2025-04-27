@@ -6,7 +6,7 @@ import java.util.List;
 
 public class UserDAO {
     //Instance variables for database connection
-    private static final String URL = "jdbc:mysql://localhost:3306/user_authentication";
+    private static final String URL = "jdbc:mysql://localhost:3306/sewasathidb";
     private static final String USER = "root";
     private static final String PASS = "";
 
@@ -28,31 +28,27 @@ public class UserDAO {
             throw e;
         }
     }
+    
     //Method for storing user into database
     // Method to Add User to Database
     public static int addUser(User user) {
-        String query = "INSERT INTO users (username, email, password, fullName, phone, address, profilePicture) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (full_name, email, password, role_id) VALUES (?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, user.getUsername());
+            ps.setString(1, user.getFull_name());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword()); // Ensure password is hashed before inserting
-            ps.setString(4, user.getFullName());
-            ps.setString(5, user.getPhone());
-            ps.setString(6, user.getAddress());
-
-            // Handling Profile Picture (if not null)
-            if (user.getProfilePicture() != null) {
-                ps.setBytes(7, user.getProfilePicture()); // Store image as BLOB
-            } else {
-                ps.setNull(7, Types.BLOB); // If no image, set NULL
-            }
+            
+            // Hash the password before storing it
+            String hashedPassword = util.PasswordUtil.hashPassword(user.getPassword());
+            ps.setString(3, hashedPassword);
+            
+            ps.setInt(4, user.getRole_id());
 
             // Execute Update
             int affectedRows = ps.executeUpdate();
 
-            // Retrieve Auto-Generated User ID (Optional)
+            // Retrieve Auto-Generated User ID
             if (affectedRows > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -68,56 +64,59 @@ public class UserDAO {
     }
 
     // Method to authenticate user
-    public static User getUserByEmailOrUsername(String emailOrUsername, String password) {
-        String query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND password = ?";
+    public static User getUserByEmail(String email, String password) {
+        String query = "SELECT * FROM users WHERE email = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
 
-            ps.setString(1, emailOrUsername);
-            ps.setString(2, emailOrUsername);
-            ps.setString(3, password); // Ensure password is hashed before comparison
-
+            ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("fullName"),
-                        rs.getString("phone"),
-                        rs.getString("address"),
-                        rs.getBytes("profilePicture"), // Binary image data
-                        rs.getBoolean("isAdmin") // Get admin status
-                );
+                // Get the stored hash
+                String storedHash = rs.getString("password");
+                
+                // Verify the password
+                if (util.PasswordUtil.verifyPassword(password, storedHash)) {
+                    return new User(
+                            rs.getInt("user_id"),
+                            rs.getString("full_name"),
+                            rs.getString("email"),
+                            storedHash, // Don't expose the actual hash, but we need it for the User object
+                            rs.getInt("role_id"),
+                            rs.getString("profile_picture_url"),
+                            rs.getString("profile_picture_public_id")
+                    );
+                }
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
         return null; // Return null if authentication fails
     }
+    
     // Method to update user details
     public static boolean updateUser(User user) {
-        String query = "UPDATE users SET password = ?, fullName = ?, phone = ?, address = ?, profilePicture = ? WHERE id = ?";
+        String query = "UPDATE users SET full_name = ?, password = ?, role_id = ?, profile_picture_url = ?, profile_picture_public_id = ? WHERE user_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
 
-            ps.setString(1, user.getPassword()); // Ensure password is hashed before storing
-            ps.setString(2, user.getFullName());
-            ps.setString(3, user.getPhone());
-            ps.setString(4, user.getAddress());
-
-            // Handling Profile Picture
-            if (user.getProfilePicture() != null) {
-                ps.setBytes(5, user.getProfilePicture()); // Update image
-            } else {
-                ps.setNull(5, Types.BLOB); // If no new image, set NULL
+            ps.setString(1, user.getFull_name());
+            
+            // Check if the password is already hashed (contains :)
+            String password = user.getPassword();
+            if (!password.contains(":")) {
+                // Hash the password before storing it
+                password = util.PasswordUtil.hashPassword(password);
             }
-
-            ps.setInt(6, user.getId()); // WHERE condition (ensures ID remains unchanged)
+            ps.setString(2, password);
+            
+            ps.setInt(3, user.getRole_id());
+            ps.setString(4, user.getProfile_picture_url());
+            ps.setString(5, user.getProfile_picture_public_id());
+            ps.setInt(6, user.getUser_id()); // WHERE condition
 
             // Execute update and check if successful
             int affectedRows = ps.executeUpdate();
@@ -132,8 +131,8 @@ public class UserDAO {
     // Method to update user password
     public static boolean updatePassword(int userId, String currentPassword, String newPassword) {
         // First verify the current password
-        String verifyQuery = "SELECT password FROM users WHERE id = ?";
-        String updateQuery = "UPDATE users SET password = ? WHERE id = ?";
+        String verifyQuery = "SELECT password FROM users WHERE user_id = ?";
+        String updateQuery = "UPDATE users SET password = ? WHERE user_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement psVerify = conn.prepareStatement(verifyQuery);
@@ -144,11 +143,13 @@ public class UserDAO {
             ResultSet rs = psVerify.executeQuery();
 
             if (rs.next()) {
-                String storedPassword = rs.getString("password");
+                String storedHash = rs.getString("password");
 
-                // If current password matches, update to new password
-                if (storedPassword.equals(currentPassword)) {
-                    psUpdate.setString(1, newPassword); // Should hash the password in a real application
+                // Verify the current password
+                if (util.PasswordUtil.verifyPassword(currentPassword, storedHash)) {
+                    // Hash the new password
+                    String newHash = util.PasswordUtil.hashPassword(newPassword);
+                    psUpdate.setString(1, newHash);
                     psUpdate.setInt(2, userId);
 
                     int affectedRows = psUpdate.executeUpdate();
@@ -162,25 +163,25 @@ public class UserDAO {
         return false; // Return false if password update fails
     }
 
-    // Method to delete user by username/email and password
-    public static boolean deleteUser(String emailOrUsername, String password) {
-        String queryCheck = "SELECT id, password FROM users WHERE (email = ? OR username = ?)";
-        String queryDelete = "DELETE FROM users WHERE id = ?";
+    // Method to delete user by email and password
+    public static boolean deleteUser(String email, String password) {
+        String queryCheck = "SELECT user_id, password FROM users WHERE email = ?";
+        String queryDelete = "DELETE FROM users WHERE user_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement psCheck = conn.prepareStatement(queryCheck);
              PreparedStatement psDelete = conn.prepareStatement(queryDelete)) {
 
-            // Step 1: Check if the username/email and password match
-            psCheck.setString(1, emailOrUsername);
-            psCheck.setString(2, emailOrUsername);
+            // Step 1: Check if the email and password match
+            psCheck.setString(1, email);
             ResultSet rs = psCheck.executeQuery();
 
             if (rs.next()) {
-                int userId = rs.getInt("id");
-                String storedPassword = rs.getString("password"); // Get stored password
+                int userId = rs.getInt("user_id");
+                String storedHash = rs.getString("password"); // Get stored hash
 
-                if (!storedPassword.equals(password)) { // Compare passwords
+                // Verify password
+                if (!util.PasswordUtil.verifyPassword(password, storedHash)) {
                     System.out.println("Incorrect password. User deletion failed.");
                     return false;
                 }
@@ -190,7 +191,7 @@ public class UserDAO {
                 int affectedRows = psDelete.executeUpdate();
                 return affectedRows > 0; // Returns true if deletion was successful
             } else {
-                System.out.println("User not found with that username/email.");
+                System.out.println("User not found with that email.");
                 return false;
             }
 
@@ -202,7 +203,7 @@ public class UserDAO {
 
     // Method to retrieve all users
     public static List<User> getAllUsers() {
-        String query = "SELECT * FROM users ORDER BY id";
+        String query = "SELECT * FROM Users ORDER BY user_id";
         List<User> users = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -211,15 +212,13 @@ public class UserDAO {
 
             while (rs.next()) {
                 User user = new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
+                    rs.getInt("user_id"),
+                    rs.getString("full_name"),
                     rs.getString("email"),
                     rs.getString("password"),
-                    rs.getString("fullName"),
-                    rs.getString("phone"),
-                    rs.getString("address"),
-                    rs.getBytes("profilePicture"),
-                    rs.getBoolean("isAdmin")
+                    rs.getInt("role_id"),
+                    rs.getString("profile_picture_url"),
+                    rs.getString("profile_picture_public_id")
                 );
                 users.add(user);
             }
@@ -231,7 +230,7 @@ public class UserDAO {
     
     // Method to get user by id
     public static User getUserById(int userId) {
-        String query = "SELECT * FROM users WHERE id = ?";
+        String query = "SELECT * FROM users WHERE user_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -241,64 +240,76 @@ public class UserDAO {
 
             if (rs.next()) {
                 return new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
+                    rs.getInt("user_id"),
+                    rs.getString("full_name"),
                     rs.getString("email"),
                     rs.getString("password"),
-                    rs.getString("fullName"),
-                    rs.getString("phone"),
-                    rs.getString("address"),
-                    rs.getBytes("profilePicture"),
-                    rs.getBoolean("isAdmin")
+                    rs.getInt("role_id"),
+                    rs.getString("profile_picture_url"),
+                    rs.getString("profile_picture_public_id")
                 );
             }
         } catch (SQLException e) {
-            System.err.println("Error retrieving user by ID: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
         return null;
     }
     
-    // Method to delete user by id (for admin use)
+    // Method to delete user by ID
     public static boolean deleteUserById(int userId) {
-        String query = "DELETE FROM users WHERE id = ?";
+        String query = "DELETE FROM users WHERE user_id = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
-             
+            
             ps.setInt(1, userId);
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
-        } catch (SQLException e) {
-            System.err.println("Error deleting user by ID: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Method to toggle admin status
-    public static boolean toggleAdminStatus(int userId) {
-        String queryGet = "SELECT isAdmin FROM users WHERE id = ?";
-        String queryUpdate = "UPDATE users SET isAdmin = ? WHERE id = ?";
-        
-        try (Connection conn = getConnection();
-             PreparedStatement psGet = conn.prepareStatement(queryGet);
-             PreparedStatement psUpdate = conn.prepareStatement(queryUpdate)) {
-             
-            psGet.setInt(1, userId);
-            ResultSet rs = psGet.executeQuery();
             
-            if (rs.next()) {
-                boolean currentStatus = rs.getBoolean("isAdmin");
-                
-                // Toggle the status
-                psUpdate.setBoolean(1, !currentStatus);
-                psUpdate.setInt(2, userId);
-                
-                int affectedRows = psUpdate.executeUpdate();
-                return affectedRows > 0;
-            }
         } catch (SQLException e) {
-            System.err.println("Error toggling admin status: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
         return false;
+    }
+    
+    // Method to update role of a user
+    public static boolean updateUserRole(int userId, int roleId) {
+        String query = "UPDATE users SET role_id = ? WHERE user_id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setInt(1, roleId);
+            ps.setInt(2, userId);
+            
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+            
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return false;
+    }
+    
+    // Method to get available roles
+    public static List<Role> getAllRoles() {
+        String query = "SELECT * FROM Roles ORDER BY role_id";
+        List<Role> roles = new ArrayList<>();
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                Role role = new Role(
+                    rs.getInt("role_id"),
+                    rs.getString("role_name")
+                );
+                roles.add(role);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving roles: " + e.getMessage());
+        }
+        return roles;
     }
 }

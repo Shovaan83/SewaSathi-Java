@@ -8,8 +8,8 @@
 
     // Get the first letter of the user's name for the avatar - only if user is logged in
     String firstLetter = "";
-    if (isLoggedIn && user.getFullName() != null && !user.getFullName().isEmpty()) {
-        firstLetter = user.getFullName().substring(0, 1).toUpperCase();
+    if (isLoggedIn && user.getFull_name() != null && !user.getFull_name().isEmpty()) {
+        firstLetter = user.getFull_name().substring(0, 1).toUpperCase();
     }
 %>
 
@@ -586,7 +586,7 @@
                         <div class="user-avatar">
                             <%= firstLetter %>
                         </div>
-                        <span><%= user.getFullName() != null ? user.getFullName() : user.getUsername() %></span>
+                        <span><%= user.getFull_name() != null ? user.getFull_name() : user.getEmail() %></span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="dropdown-menu" id="userDropdownMenu">

@@ -69,7 +69,7 @@ public class ResetPasswordServlet extends HttpServlet {
         }
 
         // Update password in database
-        boolean updateSuccess = UserDAO.updatePassword(currentUser.getId(), currentPassword, newPassword);
+        boolean updateSuccess = UserDAO.updatePassword(currentUser.getUser_id(), currentPassword, newPassword);
 
         if (updateSuccess) {
             // Update user in session with new password

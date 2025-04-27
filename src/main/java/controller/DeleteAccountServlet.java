@@ -80,7 +80,7 @@ public class DeleteAccountServlet extends HttpServlet {
 
         // Log the reason for deletion (in a real application, you might store this in a database)
         if (reason != null && !reason.trim().isEmpty()) {
-            System.out.println("Account deletion reason for user " + currentUser.getUsername() + ": " + reason);
+            System.out.println("Account deletion reason for user " + currentUser.getEmail() + ": " + reason);
         }
 
         // Delete user from database

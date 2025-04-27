@@ -1,72 +1,62 @@
 package model;
 
-import java.util.Date;
-
 public class User {
-    //Instance variables
-    private int id;
-    private String username;
+    // Instance variables based on new schema
+    private int user_id;
+    private String full_name;
     private String email;
     private String password;
-    private String fullName;
-    private String phone;
-    private String address;
-    private byte[] profilePicture;
-    private boolean isAdmin;
+    private int role_id;
+    private String profile_picture_url;
+    private String profile_picture_public_id;
 
     // Constructors
 
-    public User(String username, String email, String password, String fullName, String phone, String address, byte[] profilePicture) {
-        this.username = username;
+    // Constructor for registration
+    public User(String full_name, String email, String password, int role_id) {
+        this.full_name = full_name;
         this.email = email;
         this.password = password;
-        this.fullName = fullName;
-        this.phone = phone;
-        this.address = address;
-        this.profilePicture = profilePicture;
-        this.isAdmin = false; // Default is not admin
+        this.role_id = role_id;
     }
 
-    public User(int id, String username, String email, String password, String fullName, String phone, String address, byte[] profilePicture) {
-        this.id = id;
-        this.username = username;
+    // Constructor with all fields except images
+    public User(int user_id, String full_name, String email, String password, int role_id) {
+        this.user_id = user_id;
+        this.full_name = full_name;
         this.email = email;
         this.password = password;
-        this.fullName = fullName;
-        this.phone = phone;
-        this.address = address;
-        this.profilePicture = profilePicture;
-        this.isAdmin = false; // Default is not admin
+        this.role_id = role_id;
     }
 
-    public User(int id, String username, String email, String password, String fullName, String phone, String address, byte[] profilePicture, boolean isAdmin) {
-        this.id = id;
-        this.username = username;
+    // Constructor with all fields
+    public User(int user_id, String full_name, String email, String password, int role_id, 
+                String profile_picture_url, String profile_picture_public_id) {
+        this.user_id = user_id;
+        this.full_name = full_name;
         this.email = email;
         this.password = password;
-        this.fullName = fullName;
-        this.phone = phone;
-        this.address = address;
-        this.profilePicture = profilePicture;
-        this.isAdmin = isAdmin;
+        this.role_id = role_id;
+        this.profile_picture_url = profile_picture_url;
+        this.profile_picture_public_id = profile_picture_public_id;
     }
     
-    //Getters and setters
+    // Getters and setters
 
-    public int getId() {
-        return id;
+    public int getUser_id() {
+        return user_id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFull_name() {
+        return full_name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFull_name(String full_name) {
+        this.full_name = full_name;
     }
 
     public String getEmail() {
@@ -85,43 +75,33 @@ public class User {
         this.password = password;
     }
 
-    public String getFullName() {
-        return fullName;
+    public int getRole_id() {
+        return role_id;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setRole_id(int role_id) {
+        this.role_id = role_id;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getProfile_picture_url() {
+        return profile_picture_url;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setProfile_picture_url(String profile_picture_url) {
+        this.profile_picture_url = profile_picture_url;
     }
 
-    public String getAddress() {
-        return address;
+    public String getProfile_picture_public_id() {
+        return profile_picture_public_id;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setProfile_picture_public_id(String profile_picture_public_id) {
+        this.profile_picture_public_id = profile_picture_public_id;
     }
 
-    public byte[] getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(byte[] profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-    
+    // Helper method to check if user is admin
     public boolean isAdmin() {
-        return isAdmin;
-    }
-    
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
+        // Assuming role_id 1 is for admins, adjust as needed based on your roles setup
+        return role_id == 1;
     }
 }

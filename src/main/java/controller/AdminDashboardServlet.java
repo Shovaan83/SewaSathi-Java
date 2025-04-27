@@ -5,6 +5,8 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.User;
 import model.UserDAO;
+import model.Campaign;
+import model.CampaignDAO;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +49,7 @@ public class AdminDashboardServlet extends HttpServlet {
         if (action != null && userId > 0) {
             if (action.equals("delete")) {
                 // Don't allow deleting self
-                if (userId != user.getId()) {
+                if (userId != user.getUser_id()) {
                     boolean success = UserDAO.deleteUserById(userId);
                     if (success) {
                         message = "User deleted successfully.";
@@ -59,8 +61,11 @@ public class AdminDashboardServlet extends HttpServlet {
                 }
             } else if (action.equals("toggleAdmin")) {
                 // Don't allow changing own admin status
-                if (userId != user.getId()) {
-                    boolean success = UserDAO.toggleAdminStatus(userId);
+                if (userId != user.getUser_id()) {
+                    // Toggle between admin (1) and regular user (2) roles
+                    User targetUser = UserDAO.getUserById(userId);
+                    int newRoleId = targetUser.getRole_id() == 1 ? 2 : 1;
+                    boolean success = UserDAO.updateUserRole(userId, newRoleId);
                     if (success) {
                         message = "Admin status updated successfully.";
                     } else {
@@ -75,8 +80,53 @@ public class AdminDashboardServlet extends HttpServlet {
         // Get all users
         List<User> allUsers = UserDAO.getAllUsers();
         
+        // Calculate admin count
+        int adminCount = 0;
+        for (User u : allUsers) {
+            if (u.isAdmin()) {
+                adminCount++;
+            }
+        }
+        
+        // Add first letter of name to each user for avatar display
+        for (User u : allUsers) {
+            String firstLetter = "";
+            if (u.getFull_name() != null && !u.getFull_name().isEmpty()) {
+                firstLetter = u.getFull_name().substring(0, 1).toUpperCase();
+            } else {
+                firstLetter = u.getEmail().substring(0, 1).toUpperCase();
+            }
+            request.setAttribute("firstLetterOf" + u.getUser_id(), firstLetter);
+        }
+        
+        // Get total campaigns count (assuming you have CampaignDAO)
+        int totalCampaigns = 0;
+        List<Campaign> recentCampaigns = null;
+        try {
+            totalCampaigns = CampaignDAO.getTotalCampaignsCount();
+            recentCampaigns = CampaignDAO.getRecentCampaigns(5); // Get 5 most recent campaigns
+        } catch (Exception e) {
+            // If CampaignDAO is not implemented yet, we'll just use 0 and empty list
+            System.err.println("Error fetching campaign data: " + e.getMessage());
+        }
+        
         // Set attributes for the JSP
-        request.setAttribute("users", allUsers);
+        request.setAttribute("allUsers", allUsers);
+        request.setAttribute("totalUsers", allUsers.size());
+        request.setAttribute("adminCount", adminCount);
+        request.setAttribute("totalCampaigns", totalCampaigns);
+        request.setAttribute("recentCampaigns", recentCampaigns);
+        
+        // Set user's first letter for avatar
+        String userFirstLetter = "";
+        if (user.getFull_name() != null && !user.getFull_name().isEmpty()) {
+            userFirstLetter = user.getFull_name().substring(0, 1).toUpperCase();
+        } else {
+            userFirstLetter = user.getEmail().substring(0, 1).toUpperCase();
+        }
+        request.setAttribute("firstLetterOfName", userFirstLetter);
+        session.setAttribute("user", user);
+        
         if (message != null) {
             request.setAttribute("message", message);
         }

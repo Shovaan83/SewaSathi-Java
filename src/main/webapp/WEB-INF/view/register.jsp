@@ -1,130 +1,193 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Sewa Sathi | Crowdfunding Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/register.css">
+    <title>Create Account | SewaSathi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --primary-dark: #ff5252;
+            --text-color: #333333;
+            --text-light: #757575;
+            --background-color: #ffffff;
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(rgba(255, 107, 107, 0.3), rgba(255, 107, 107, 0.3));
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background-color: var(--background-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            margin-bottom: 24px;
+        }
+        
+        .logo img {
+            height: 60px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-color);
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 32px;
+        }
+        
+        .input-field {
+            background-color: #f5f5f5;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .auth-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .auth-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .terms-text {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 24px;
+            line-height: 1.5;
+        }
+        
+        .terms-text a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .terms-text a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="page-wrapper">
-    <div class="register-container">
-        <!-- Left Side - Branding Area -->
-        <div class="register-sidebar">
-            <div class="sidebar-content">
-                <div class="logo-area">
-                    <div class="logo-circle">SS</div>
-                    <h1>Sewa Sathi</h1>
-                </div>
-                <div class="tagline">Fund Dreams, Build Community</div>
-                <p>Join our network of changemakers creating impact through collective action.</p>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number">12K+</div>
-                        <div class="stat-label">Backers</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">₹12M</div>
-                        <div class="stat-label">Funded</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">7500+</div>
-                        <div class="stat-label">Projects</div>
-                    </div>
-                </div>
-            </div>
+    <div class="auth-card">
+        <div class="logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.svg" alt="SewaSathi" onerror="this.src='${pageContext.request.contextPath}/assets/images/logo.png';this.onerror='';">
         </div>
-
-        <!-- Right Side - Form Area -->
-        <div class="register-form-wrapper">
-            <div class="form-header">
-                <h2>Create Your Account</h2>
-                <p>Start your journey with us today</p>
-            </div>
-
-            <% if (request.getAttribute("error") != null) { %>
-            <div class="alert alert-error"><%= request.getAttribute("error") %></div>
-            <% } %>
-
-            <form action="${pageContext.request.contextPath}/RegisterServlet" method="post" enctype="multipart/form-data">
-                <div class="form-modules">
-                    <!-- Module 1: Account Information -->
-                    <div class="form-module">
-                        <div class="module-header">
-                            <div class="module-icon">👤</div>
-                            <h3>Account Details</h3>
-                        </div>
-                        <div class="module-content">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="username">Username*</label>
-                                    <input type="text" id="username" name="username" placeholder="Choose username" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email*</label>
-                                    <input type="email" id="email" name="email" placeholder="email@example.com" required>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="password">Password*</label>
-                                    <input type="password" id="password" name="password" placeholder="Create password" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="confirmPassword">Confirm Password*</label>
-                                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Module 2: Personal Information -->
-                    <div class="form-module">
-                        <div class="module-header">
-                            <div class="module-icon">📋</div>
-                            <h3>Personal Information</h3>
-                        </div>
-                        <div class="module-content">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="fullName">Full Name*</label>
-                                    <input type="text" id="fullName" name="fullName" placeholder="Your name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone">Phone Number</label>
-                                    <input type="tel" id="phone" name="phone" placeholder="Your phone">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="address">Address</label>
-                                    <input type="text" id="address" name="address" placeholder="Your address">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-footer">
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="termsConditions" name="termsConditions" required>
-                        <label for="termsConditions">I agree to the <a href="#">Terms</a> & <a href="#">Privacy Policy</a></label>
-                    </div>
-                    <button type="submit" class="btn-register">Create Account</button>
-                </div>
-            </form>
-
-            <div class="login-link">
-                Already have an account? <a href="${pageContext.request.contextPath}/LoginServlet">Log in</a>
-            </div>
+        
+        <h1>Create an account</h1>
+        <p class="subtitle">Already have an account? <a href="${pageContext.request.contextPath}/LoginServlet">Sign In</a></p>
+        
+        <% if (request.getAttribute("error") != null) { %>
+        <div class="alert alert-error">
+            <%= request.getAttribute("error") %>
         </div>
+        <% } %>
+        
+        <form action="${pageContext.request.contextPath}/RegisterServlet" method="post" enctype="multipart/form-data">
+            <input type="text" name="full_name" id="full_name" class="input-field" placeholder="Full name" required>
+            <input type="email" name="email" id="email" class="input-field" placeholder="Email" required>
+            <input type="password" name="password" id="password" class="input-field" placeholder="Password" required>
+            <input type="password" name="confirmPassword" id="confirmPassword" class="input-field" placeholder="Confirm password" required>
+            
+            <!-- Role selection (only shown in admin view) - hidden by default -->
+            <select id="role_id" name="role_id" class="input-field hidden">
+                <c:forEach var="role" items="${roles}">
+                    <option value="${role.role_id}">${role.role_name}</option>
+                </c:forEach>
+            </select>
+            
+            <button type="submit" class="auth-btn">Sign Up</button>
+        </form>
+        
+        <p class="terms-text">
+            By clicking the Sign In button below, you agree to the SewaSathi 
+            <a href="#">Terms of Service</a> and acknowledge the 
+            <a href="#">Privacy Notice</a>.
+        </p>
     </div>
-</div>
-
-<script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
+    
+    <script>
+        // Form validation script
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            form.addEventListener('submit', function(event) {
+                if (password.value !== confirmPassword.value) {
+                    event.preventDefault();
+                    alert('Passwords do not match!');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

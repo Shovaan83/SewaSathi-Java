@@ -52,13 +52,11 @@ public class UpdateProfileServlet extends HttpServlet {
         }
 
         // Get form parameters
-        String username = request.getParameter("username");
+        String full_name = request.getParameter("full_name");
         String email = request.getParameter("email");
-        String fullName = request.getParameter("fullName");
-        String phone = request.getParameter("phone");
-        String address = request.getParameter("address");
-        Part filePart = request.getPart("profilePicture");
         String password = request.getParameter("password");
+        Part filePart = request.getPart("profilePicture");
+        int role_id = currentUser.getRole_id(); // Maintain the same role
 
         // Validate password - simplified validation since PasswordHasher is not available
         if (!password.equals(currentUser.getPassword())) {
@@ -67,22 +65,11 @@ public class UpdateProfileServlet extends HttpServlet {
             return;
         }
 
-        // If username is changed, check if it's already taken
-        if (!username.equals(currentUser.getUsername())) {
-            // Using the correct method signature with password parameter
-            User existingUser = UserDAO.getUserByEmailOrUsername(username, password);
-            if (existingUser != null && existingUser.getId() != currentUser.getId()) {
-                request.setAttribute("error", "Username already exists. Choose a different username.");
-                request.getRequestDispatcher("/WEB-INF/view/editprofile.jsp").forward(request, response);
-                return;
-            }
-        }
-
         // If email is changed, check if it's already taken
         if (!email.equals(currentUser.getEmail())) {
-            // Using the correct method signature with password parameter
-            User existingUser = UserDAO.getUserByEmailOrUsername(email, password);
-            if (existingUser != null && existingUser.getId() != currentUser.getId()) {
+            // Using the email check method
+            User existingUser = UserDAO.getUserByEmail(email, password);
+            if (existingUser != null && existingUser.getUser_id() != currentUser.getUser_id()) {
                 request.setAttribute("error", "Email already exists. Choose a different email.");
                 request.getRequestDispatcher("/WEB-INF/view/editprofile.jsp").forward(request, response);
                 return;
@@ -90,25 +77,21 @@ public class UpdateProfileServlet extends HttpServlet {
         }
 
         // Process profile picture if provided
-        byte[] profilePicture = currentUser.getProfilePicture();
-        if (filePart != null && filePart.getSize() > 0) {
-            try (InputStream fileContent = filePart.getInputStream()) {
-                profilePicture = new byte[(int) filePart.getSize()];
-                fileContent.read(profilePicture);
-            }
-        }
+        String profile_picture_url = currentUser.getProfile_picture_url();
+        String profile_picture_public_id = currentUser.getProfile_picture_public_id();
+        
+        // Note: You would need to implement image upload to Cloudinary or similar service
+        // and get URL and public_id from the response
 
         // Create updated user object
         User updatedUser = new User(
-                currentUser.getId(),
-                username,
+                currentUser.getUser_id(),
+                full_name,
                 email,
-                currentUser.getPassword(),
-                fullName,
-                phone,
-                address,
-                profilePicture,
-                currentUser.isAdmin()
+                password,
+                role_id,
+                profile_picture_url,
+                profile_picture_public_id
         );
 
         // Update user in database

@@ -53,7 +53,7 @@
         <p>If you're sure you want to proceed, please provide your password and a reason for leaving.</p>
     </div>
 
-    <form action="${pageContext.request.contextPath}/DeleteAccountServlet" method="post" class="form">
+    <form action="${pageContext.request.contextPath}/DeleteAccountServlet" method="post" id="deleteAccountForm">
         <div class="form-section">
             <div class="form-section-title">Reason for Leaving</div>
 

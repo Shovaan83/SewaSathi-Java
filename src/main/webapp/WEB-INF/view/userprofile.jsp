@@ -18,8 +18,10 @@
 
     // Get the first letter of the user's name for the avatar
     String firstLetter = "";
-    if (user.getFullName() != null && !user.getFullName().isEmpty()) {
-        firstLetter = user.getFullName().substring(0, 1).toUpperCase();
+    if (user.getFull_name() != null && !user.getFull_name().isEmpty()) {
+        firstLetter = user.getFull_name().substring(0, 1).toUpperCase();
+    } else {
+        firstLetter = user.getEmail().substring(0, 1).toUpperCase();
     }
 %>
 <!DOCTYPE html>
@@ -27,584 +29,845 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backer Profile | <%= user.getFullName() %></title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <title>Profile | <%= user.getFull_name() %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #2f80ed;
-            --primary-dark: #1a73e8;
-            --secondary: #34ca96;
-            --text-dark: #333;
-            --text-light: #666;
-            --background: #f8f9fa;
-            --danger: #e74c3c;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --light-gray: #e9ecef;
+            --primary-color: #ff6b6b;
+            --secondary-color: #ff8e8e;
+            --dark-color: #2d3748;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --gray-color: #6c757d;
+            --border-radius: 0.5rem;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
-        
-        body {
-            font-family: 'Roboto', sans-serif;
+
+        * {
             margin: 0;
             padding: 0;
-            background-color: var(--background);
-            color: var(--text-dark);
+            box-sizing: border-box;
         }
-        
-        .crowdfund-container {
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-color: var(--gray-light);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 15px;
         }
-        
-        .top-nav {
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--background);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+
+        .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-            margin-bottom: 30px;
         }
-        
-        .logo {
-            font-size: 1.5rem;
+
+        .logo-text {
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--primary);
         }
-        
-        .logo span {
-            color: var(--secondary);
-        }
-        
-        .top-nav-links a {
-            margin-left: 20px;
-            text-decoration: none;
+
+        .logo-text span {
             color: var(--text-dark);
-            font-weight: 500;
-            transition: all 0.2s;
         }
-        
-        .top-nav-links a:hover {
-            color: var(--primary);
-        }
-        
-        .profile-header {
+
+        .search-container {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border-radius: 10px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            width: 300px;
         }
-        
-        .campaign-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .profile-sections {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-        
-        .profile-section, .sidebar-section {
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-        
-        .section-title {
-            font-size: 1.2rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light-gray);
-            color: var(--primary);
-        }
-        
-        .profile-detail {
-            display: flex;
-            margin-bottom: 15px;
-            align-items: flex-start;
-        }
-        
-        .detail-label {
-            width: 140px;
-            font-weight: 500;
-            color: var(--text-light);
-            flex-shrink: 0;
-        }
-        
-        .detail-value {
-            flex-grow: 1;
-        }
-        
-        .button-primary {
-            background-color: var(--primary);
-            color: white;
+
+        .search-container input {
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .button-primary:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .button-secondary {
-            background-color: white;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .button-secondary:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .button-danger {
-            background-color: white;
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .button-danger:hover {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .profile-image img {
+            outline: none;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
         }
-        
-        .avatar {
-            width: 120px;
-            height: 120px;
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background-color: var(--secondary);
+            background-color: var(--primary);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
             font-weight: 500;
-            margin-bottom: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            font-size: 1rem;
+            margin-right: 10px;
         }
-        
-        .modal {
-            display: none;
-            position: fixed;
+
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-trigger {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50px;
+            transition: background-color 0.3s;
+        }
+
+        .user-trigger:hover {
+            background-color: var(--gray-light);
+        }
+
+        .user-trigger i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            min-width: 180px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             z-index: 1000;
-            left: 0;
+            display: none;
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--gray-light);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--gray-medium);
+            margin: 5px 0;
+        }
+
+        .user-dropdown:hover .dropdown-menu {
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--gray-light);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: 1px solid #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Profile Page Styles */
+        .profile-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            background-color: var(--background);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background-color: var(--primary-light);
+            padding: 2rem;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 3rem;
+            margin: 0 auto 1rem;
+            border: 5px solid white;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-username {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .profile-content {
+            padding: 2rem;
+        }
+
+        .section-heading {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .account-info {
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            width: 140px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .info-value {
+            color: var(--text-dark);
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
-        
-        .modal-content {
+
+        .modal {
             background-color: white;
-            margin: 10% auto;
-            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             max-width: 500px;
-            position: relative;
-        }
-        
-        .close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .modal-title {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: var(--text-dark);
-            font-size: 1.4rem;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--light-gray);
-            border-radius: 5px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-dark);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo-text span {
+            color: var(--primary);
+        }
+
+        .footer-about {
+            color: #adb5bd;
+            font-size: 0.9rem;
+            max-width: 300px;
+            line-height: 1.6;
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links a {
+            display: block;
+            color: #adb5bd;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        .contact-info i {
+            margin-right: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #495057;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #adb5bd;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #343a40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background-color: var(--primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-container {
+                display: none;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .profile-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-link {
+                display: none;
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        /* Profile styles updated to match project theme */
+        .profile-section {
+            padding: 2rem 0;
+        }
+        
+        .profile-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin: 0 auto 1rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-username {
+            opacity: 0.8;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .profile-content {
+            padding: 2rem;
+        }
+        
+        .section-heading {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .info-label {
+            width: 120px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .info-value {
+            flex: 1;
+            color: var(--gray-color);
+        }
+        
+        .profile-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
             font-size: 1rem;
         }
         
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 30px;
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
         }
         
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
         }
         
-        .alert-success {
-            background-color: rgba(39, 174, 96, 0.1);
-            color: var(--success);
-            border: 1px solid var(--success);
+        .btn-outline {
+            background-color: transparent;
+            color: var(--dark-color);
+            border: 1px solid #ddd;
         }
         
-        .alert-error {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: var(--danger);
-            border: 1px solid var(--danger);
+        .btn-outline:hover {
+            background-color: #f8f9fa;
         }
         
-        .fund-progress {
-            background-color: var(--light-gray);
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 20px;
-            overflow: hidden;
+        .btn-danger {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
         }
         
-        .progress-bar {
-            height: 100%;
-            background-color: var(--secondary);
-            width: 78%; /* Example value */
+        .btn-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
         }
         
-        .project-card {
-            background-color: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            transition: transform 0.3s;
-        }
-        
-        .project-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .project-image {
-            height: 160px;
-            overflow: hidden;
-        }
-        
-        .project-image img {
+        /* Modal styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
         
-        .project-info {
-            padding: 20px;
+        .modal {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
         }
         
-        .project-info h3 {
-            margin-top: 0;
-            font-size: 1.1rem;
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
         }
         
-        .project-info p {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
+        .modal-title {
+            margin: 0;
+            color: var(--dark-color);
         }
         
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            margin-right: 5px;
+        .modal-body {
+            padding: 1.5rem;
+            color: var(--gray-color);
         }
         
-        .badge-primary {
-            background-color: rgba(47, 128, 237, 0.1);
-            color: var(--primary);
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
         }
         
-        .badge-success {
-            background-color: rgba(52, 202, 150, 0.1);
-            color: var(--secondary);
+        @media (max-width: 768px) {
+            .profile-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
+<jsp:include page="/WEB-INF/components/navbar.jsp" />
 
-<div class="crowdfund-container">
-    <div class="top-nav">
-        <div class="logo">Sewa<span>Sathi</span></div>
-        <div class="top-nav-links">
-            <a href="${pageContext.request.contextPath}/index.jsp"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#"><i class="fas fa-compass"></i> Discover</a>
-            <a href="#"><i class="fas fa-lightbulb"></i> Start a Campaign</a>
-            <a href="${pageContext.request.contextPath}/LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
-    </div>
-
-    <!-- Display success message if present -->
-    <% if (request.getParameter("success") != null) { %>
-    <div class="alert alert-success">
-        <%= request.getParameter("success") %>
-    </div>
-    <% } %>
-
-    <!-- Display error message if present -->
-    <% if (request.getAttribute("error") != null) { %>
-    <div class="alert alert-error">
-        <%= request.getAttribute("error") %>
-    </div>
-    <% } %>
-
-    <div class="profile-header">
-        <% if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) { %>
-        <div class="profile-image">
-            <img src="data:image/jpeg;base64,<%= java.util.Base64.getEncoder().encodeToString(user.getProfilePicture()) %>" alt="Profile Picture">
-        </div>
-        <% } else { %>
-        <div class="avatar">
-            <%= firstLetter %>
-        </div>
-        <% } %>
-
-        <h1><%= user.getFullName() %></h1>
-        <p>@<%= user.getUsername() %></p>
-    </div>
-
-    <div class="campaign-stats">
-        <div class="stat-card">
-            <div class="stat-value">3</div>
-            <div class="stat-label">Projects Backed</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">₹15,000</div>
-            <div class="stat-label">Total Contributions</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">1</div>
-            <div class="stat-label">Campaigns Created</div>
-        </div>
-    </div>
-
-    <div class="profile-sections">
-        <div>
-            <div class="profile-section">
-                <h2 class="section-title">Your Campaign</h2>
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="Campaign Image">
-                    </div>
-                    <div class="project-info">
-                        <span class="badge badge-success">Active</span>
-                        <h3>Community Garden Initiative</h3>
-                        <p>Creating sustainable community gardens in urban neighborhoods</p>
-                        <div class="fund-progress">
-                            <div class="progress-bar"></div>
-                        </div>
-                        <p><strong>₹45,000</strong> raised of ₹60,000 goal</p>
-                    </div>
+<!-- Profile Section -->
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <%= firstLetter %>
                 </div>
-                
-                <h2 class="section-title">Recently Backed</h2>
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="Project Image">
+                <h1 class="profile-name"><%= user.getFull_name() != null ? user.getFull_name() : "No Name Set" %></h1>
+                <p class="profile-username">@<%= user.getEmail() %></p>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Projects Backed</div>
                     </div>
-                    <div class="project-info">
-                        <span class="badge badge-primary">Technology</span>
-                        <h3>Eco-Friendly Solar Charger</h3>
-                        <p>Portable solar charger for all your devices</p>
-                        <div class="fund-progress">
-                            <div class="progress-bar" style="width: 65%"></div>
-                        </div>
-                        <p><strong>₹32,500</strong> raised of ₹50,000 goal</p>
+                    <div class="stat-item">
+                        <div class="stat-value">32</div>
+                        <div class="stat-label">Following</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">Rs 25,000</div>
+                        <div class="stat-label">Total Contribution</div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div>
-            <div class="sidebar-section">
-                <h2 class="section-title">Account Information</h2>
-                
-                <div class="profile-detail">
-                    <div class="detail-label">Username</div>
-                    <div class="detail-value"><%= user.getUsername() %></div>
+
+            <div class="profile-content">
+                <div class="account-info">
+                    <h2 class="section-heading">Account Information</h2>
+                    <div class="info-item">
+                        <div class="info-label">Full Name:</div>
+                        <div class="info-value"><%= user.getFull_name() != null ? user.getFull_name() : "Not set" %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Username:</div>
+                        <div class="info-value"><%= user.getEmail() %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value"><%= user.getEmail() %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Member Since:</div>
+                        <div class="info-value">March 18, 2024</div>
+                    </div>
                 </div>
-                
-                <div class="profile-detail">
-                    <div class="detail-label">Email</div>
-                    <div class="detail-value"><%= user.getEmail() %></div>
+
+                <div class="profile-actions">
+                    <a href="${pageContext.request.contextPath}/UpdateProfileServlet" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                    <a href="${pageContext.request.contextPath}/ResetPasswordServlet" class="btn btn-outline">
+                        <i class="fas fa-key"></i> Change Password
+                    </a>
+                    <button id="deleteAccountBtn" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete Account
+                    </button>
                 </div>
-                
-                <div class="profile-detail">
-                    <div class="detail-label">Full Name</div>
-                    <div class="detail-value"><%= user.getFullName() != null ? user.getFullName() : "Not provided" %></div>
-                </div>
-                
-                <div class="profile-detail">
-                    <div class="detail-label">Phone</div>
-                    <div class="detail-value"><%= user.getPhone() != null && !user.getPhone().isEmpty() ? user.getPhone() : "Not provided" %></div>
-                </div>
-                
-                <div class="profile-detail">
-                    <div class="detail-label">Address</div>
-                    <div class="detail-value"><%= user.getAddress() != null && !user.getAddress().isEmpty() ? user.getAddress() : "Not provided" %></div>
-                </div>
-                
-                <a href="${pageContext.request.contextPath}/UpdateProfileServlet" class="button-primary">Edit Profile</a>
-                <a href="${pageContext.request.contextPath}/ResetPasswordServlet" class="button-secondary">Change Password</a>
-                <button id="deleteAccountBtn" class="button-danger">Delete Account</button>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Delete Account Modal -->
-<div id="deleteAccountModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 class="modal-title">Verify Password</h2>
-        <p>Please enter your password to proceed to account deletion.</p>
-
-        <form id="passwordForm" action="${pageContext.request.contextPath}/DeleteAccountServlet" method="get" class="form">
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="button-secondary" id="cancelDelete">Cancel</button>
-                <button type="submit" class="button-danger">Continue</button>
-            </div>
-        </form>
+<div id="deleteAccountModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Account</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDeleteBtn" class="btn btn-outline">Cancel</button>
+            <a href="${pageContext.request.contextPath}/DeleteAccountServlet" class="btn btn-danger">Delete Account</a>
+        </div>
     </div>
 </div>
 
+<jsp:include page="/WEB-INF/components/footer.jsp" />
+
 <script>
-    // Get the modal
-    const modal = document.getElementById("deleteAccountModal");
+    // Delete Account Modal
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    const deleteAccountModal = document.getElementById('deleteAccountModal');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-    // Get the button that opens the modal
-    const btn = document.getElementById("deleteAccountBtn");
+    deleteAccountBtn.addEventListener('click', function() {
+        deleteAccountModal.style.display = 'flex';
+    });
 
-    // Get the <span> element that closes the modal
-    const span = document.getElementsByClassName("close")[0];
+    cancelDeleteBtn.addEventListener('click', function() {
+        deleteAccountModal.style.display = 'none';
+    });
 
-    // Get the cancel button
-    const cancelBtn = document.getElementById("cancelDelete");
-
-    // When the user clicks the button, open the modal
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
-
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    // When the user clicks on cancel, close the modal
-    cancelBtn.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+    deleteAccountModal.addEventListener('click', function(e) {
+        if (e.target === deleteAccountModal) {
+            deleteAccountModal.style.display = 'none';
         }
-    }
-</script>
+    });
 
+    // User Dropdown Toggle
+    const userTrigger = document.querySelector('.user-trigger');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+
+    // Toggle dropdown on user avatar click
+    userTrigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!userTrigger.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+        }
+    });
+</script>
 </body>
 </html>
