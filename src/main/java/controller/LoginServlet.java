@@ -111,7 +111,9 @@ public class LoginServlet extends HttpServlet {
 
             // Redirect based on role
             if (user.isAdmin()) {
-                response.sendRedirect(request.getContextPath() + "/AdminDashboardServlet");
+                // Set a session attribute to indicate this is a direct admin login
+                session.setAttribute("directAdminAccess", true);
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             } else {
                 response.sendRedirect(request.getContextPath() + "/");
             }

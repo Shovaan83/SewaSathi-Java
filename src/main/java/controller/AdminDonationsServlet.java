@@ -8,7 +8,7 @@ import model.*;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "AdminDonationsServlet", value = "/AdminDonationsServlet")
+@WebServlet(name = "AdminDonationsServlet", urlPatterns = {"/AdminDonationsServlet", "/admin/donations"})
 public class AdminDonationsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -18,7 +18,7 @@ public class AdminDonationsServlet extends HttpServlet {
 
         if (user == null) {
             // User not logged in, redirect to login page
-            response.sendRedirect(request.getContextPath() + "/LoginServlet");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -90,7 +90,7 @@ public class AdminDonationsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // For now, just redirect to doGet
+        // For simplicity, just redirect to doGet
         doGet(request, response);
     }
 } 

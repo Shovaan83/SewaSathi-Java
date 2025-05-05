@@ -32,10 +32,15 @@ public class AdminAuthorizationFilter implements Filter {
         
         if (isLoggedIn) {
             User user = (User) session.getAttribute("user");
-            // Check if user has admin role (assuming role_id 1 is admin)
-            boolean isAdmin = (user.getRole_id() == 1);
+            // Check if user has admin role
+            boolean isAdmin = user.isAdmin();
             
             if (isAdmin) {
+                // If this was a direct admin login, clear the flag to prevent further issues
+                if (session.getAttribute("directAdminAccess") != null) {
+                    session.removeAttribute("directAdminAccess");
+                }
+                
                 // User is an admin, continue with the request
                 chain.doFilter(request, response);
                 return;

@@ -11,7 +11,7 @@ import model.CampaignDAO;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "AdminDashboardServlet", value = "/AdminDashboardServlet")
+@WebServlet(name = "AdminDashboardServlet", urlPatterns = {"/AdminDashboardServlet", "/admin/dashboard"})
 public class AdminDashboardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -21,7 +21,7 @@ public class AdminDashboardServlet extends HttpServlet {
 
         if (user == null) {
             // User not logged in, redirect to login page
-            response.sendRedirect(request.getContextPath() + "/LoginServlet");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 

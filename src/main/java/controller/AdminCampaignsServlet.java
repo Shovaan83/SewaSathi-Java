@@ -10,7 +10,7 @@ import model.CampaignDAO;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "AdminCampaignsServlet", value = "/AdminCampaignsServlet")
+@WebServlet(name = "AdminCampaignsServlet", urlPatterns = {"/AdminCampaignsServlet", "/admin/campaigns"})
 public class AdminCampaignsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -20,7 +20,7 @@ public class AdminCampaignsServlet extends HttpServlet {
 
         if (user == null) {
             // User not logged in, redirect to login page
-            response.sendRedirect(request.getContextPath() + "/LoginServlet");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -115,7 +115,7 @@ public class AdminCampaignsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // For now, just redirect to doGet
+        // For simplicity, just redirect to doGet
         doGet(request, response);
     }
 } 

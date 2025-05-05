@@ -12,11 +12,13 @@ import java.io.IOException;
 /**
  * Filter that checks if user is authenticated for protected pages
  */
-@WebFilter(filterName = "AuthenticationFilter", urlPatterns = {
-        "/dashboard", "/profile", "/create-campaign", "/edit-campaign", 
-        "/my-campaigns", "/my-donations", "/account-settings", "/admin/*"
-})
+@WebFilter(filterName = "AuthenticationFilter", urlPatterns = {"/*"})
 public class AuthenticationFilter implements Filter {
+    
+    private static final String[] EXCLUDED_PATHS = {
+        "/login", "/register", "/", "/index.jsp", "/assets/", 
+        "/css/", "/js/", "/images/", "/favicon.ico", "/access-denied"
+    };
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -29,10 +31,18 @@ public class AuthenticationFilter implements Filter {
         
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        HttpSession session = httpRequest.getSession(false);
-        
-        boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
         String requestURI = httpRequest.getRequestURI();
+        String contextPath = httpRequest.getContextPath();
+        String path = requestURI.substring(contextPath.length());
+        
+        // Check if the requested path is excluded from authentication
+        if (isExcludedPath(path)) {
+            chain.doFilter(request, response);
+            return;
+        }
+        
+        HttpSession session = httpRequest.getSession(false);
+        boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
         
         if (isLoggedIn) {
             // Add a header for CSRF protection
@@ -51,6 +61,18 @@ public class AuthenticationFilter implements Filter {
         }
     }
 
+    /**
+     * Check if the path is excluded from authentication
+     */
+    private boolean isExcludedPath(String path) {
+        for (String excludedPath : EXCLUDED_PATHS) {
+            if (path.equals(excludedPath) || path.startsWith(excludedPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @Override
     public void destroy() {
         // Cleanup code if needed
