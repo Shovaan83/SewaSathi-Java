@@ -13,11 +13,12 @@ public class Campaign {
     private int category_id;
     private String campaign_image_url;
     private String campaign_image_public_id;
+    private String status;
 
     // Constructors
     public Campaign(int campaign_id, String title, String description, BigDecimal goal_amount, 
                   Date deadline, int created_by, int category_id, 
-                  String campaign_image_url, String campaign_image_public_id) {
+                  String campaign_image_url, String campaign_image_public_id, String status) {
         this.campaign_id = campaign_id;
         this.title = title;
         this.description = description;
@@ -27,6 +28,19 @@ public class Campaign {
         this.category_id = category_id;
         this.campaign_image_url = campaign_image_url;
         this.campaign_image_public_id = campaign_image_public_id;
+        this.status = status;
+    }
+
+    public Campaign(int campaign_id, String title, String description, BigDecimal goal_amount, 
+                  Date deadline, int created_by, int category_id, String status) {
+        this.campaign_id = campaign_id;
+        this.title = title;
+        this.description = description;
+        this.goal_amount = goal_amount;
+        this.deadline = deadline;
+        this.created_by = created_by;
+        this.category_id = category_id;
+        this.status = status;
     }
 
     public Campaign(String title, String description, BigDecimal goal_amount, 
@@ -37,6 +51,10 @@ public class Campaign {
         this.deadline = deadline;
         this.created_by = created_by;
         this.category_id = category_id;
+        this.status = "pending";
+    }
+
+    public Campaign(int campaignId, String title, String description, BigDecimal goalAmount, java.sql.Date deadline, int createdBy, int categoryId, String campaignImageUrl, String campaignImagePublicId) {
     }
 
     // Getters and Setters
@@ -110,6 +128,14 @@ public class Campaign {
 
     public void setCampaign_image_public_id(String campaign_image_public_id) {
         this.campaign_image_public_id = campaign_image_public_id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     // Convenience getters for JSP
