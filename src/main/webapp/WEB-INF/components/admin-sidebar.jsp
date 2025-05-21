@@ -23,7 +23,7 @@
         <a href="${pageContext.request.contextPath}/" class="admin-sidebar-item">
             <i class="fas fa-home"></i> Back to Website
         </a>
-        <a href="${pageContext.request.contextPath}/logout" class="admin-sidebar-item">
+        <a href="${pageContext.request.contextPath}/admin/logout" class="admin-sidebar-item">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>

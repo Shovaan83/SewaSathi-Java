@@ -8,32 +8,33 @@ public class MonetaryDonation {
     private int campaign_id;
     private int user_id;
     private BigDecimal amount;
-    private String payment_method;
     private String transaction_id;
     private Date donation_date;
     
     // Transient properties for UI display
     private transient String campaignTitle;
     private transient String donorName;
+    private transient String donorEmail;
+    private transient String donorPhone;
+    private transient String message;
+    private transient boolean anonymous;
     
     // Constructors
     public MonetaryDonation(int donation_id, int campaign_id, int user_id, BigDecimal amount, 
-                          String payment_method, String transaction_id, Date donation_date) {
+                          String transaction_id, Date donation_date) {
         this.donation_id = donation_id;
         this.campaign_id = campaign_id;
         this.user_id = user_id;
         this.amount = amount;
-        this.payment_method = payment_method;
         this.transaction_id = transaction_id;
         this.donation_date = donation_date;
     }
     
     public MonetaryDonation(int campaign_id, int user_id, BigDecimal amount, 
-                          String payment_method, String transaction_id) {
+                          String transaction_id) {
         this.campaign_id = campaign_id;
         this.user_id = user_id;
         this.amount = amount;
-        this.payment_method = payment_method;
         this.transaction_id = transaction_id;
         this.donation_date = new Date(); // Current date
     }
@@ -71,14 +72,6 @@ public class MonetaryDonation {
         this.amount = amount;
     }
     
-    public String getPayment_method() {
-        return payment_method;
-    }
-    
-    public void setPayment_method(String payment_method) {
-        this.payment_method = payment_method;
-    }
-    
     public String getTransaction_id() {
         return transaction_id;
     }
@@ -110,6 +103,38 @@ public class MonetaryDonation {
     
     public void setDonorName(String donorName) {
         this.donorName = donorName;
+    }
+    
+    public String getDonorEmail() {
+        return donorEmail;
+    }
+    
+    public void setDonorEmail(String donorEmail) {
+        this.donorEmail = donorEmail;
+    }
+    
+    public String getDonorPhone() {
+        return donorPhone;
+    }
+    
+    public void setDonorPhone(String donorPhone) {
+        this.donorPhone = donorPhone;
+    }
+    
+    public String getMessage() {
+        return message;
+    }
+    
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+    
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
     }
     
     // Convenience methods for JSP

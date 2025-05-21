@@ -1,4 +1,4 @@
-<%@ page import="model.MonetaryDonation, java.util.List, java.text.SimpleDateFormat, java.text.DecimalFormat" %>
+<%@ page import="model.User, model.MonetaryDonation, java.util.List, java.text.SimpleDateFormat, java.text.DecimalFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
@@ -38,6 +38,11 @@
             line-height: 1.6;
         }
         
+        .admin-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
         .container {
             width: 100%;
             padding-right: 15px;
@@ -60,13 +65,6 @@
             align-items: center;
         }
         
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        
         .user-info {
             display: flex;
             align-items: center;
@@ -87,48 +85,6 @@
         
         .username {
             font-weight: 600;
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-        }
-        
-        .sidebar {
-            background-color: #fff;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 1.5rem;
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-        }
-        
-        .sidebar-menu li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            color: var(--dark-color);
-            text-decoration: none;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-        }
-        
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .sidebar-menu i {
-            width: 20px;
-            text-align: center;
         }
         
         .card {
@@ -359,188 +315,140 @@
             border-color: var(--primary-color);
         }
         
-        @media (max-width: 992px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                margin-bottom: 1.5rem;
-            }
-            
-            .sidebar-menu {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            
-            .sidebar-menu li {
-                margin-bottom: 0;
+        @media (max-width: 768px) {
+            .admin-content {
+                margin-left: 70px;
             }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container header-content">
-            <a href="${pageContext.request.contextPath}/" class="logo">
-                <i class="fas fa-hands-helping"></i> SewaSathi Admin
-            </a>
-            <div class="user-info">
-                <div class="avatar">
-                    ${firstLetterOfName}
+    <!-- Include Admin Sidebar -->
+    <jsp:include page="../components/admin-sidebar.jsp" />
+    
+    <div class="admin-content">
+        <div class="header">
+            <div class="container">
+                <div class="header-content">
+                    <h1>Donation Management</h1>
+                    <div class="user-info">
+                        <div class="avatar">
+                            <%= request.getAttribute("firstLetterOfName") %>
+                        </div>
+                        <div class="username">${sessionScope.user.full_name}</div>
+                    </div>
                 </div>
-                <span class="username">${sessionScope.user.full_name}</span>
-                <a href="${pageContext.request.contextPath}/LogoutServlet" class="btn btn-sm btn-primary">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
             </div>
         </div>
-    </header>
-    
-    <div class="container">
-        <div class="dashboard">
-            <aside class="sidebar">
-                <ul class="sidebar-menu">
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminDashboardServlet">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminUsersServlet">
-                            <i class="fas fa-users"></i> Users
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminCampaignsServlet">
-                            <i class="fas fa-hand-holding-heart"></i> Campaigns
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminDonationsServlet" class="active">
-                            <i class="fas fa-donate"></i> Donations
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/">
-                            <i class="fas fa-home"></i> Back to Site
-                        </a>
-                    </li>
-                </ul>
-            </aside>
+        
+        <div class="container">
+            <!-- Display success/error message if any -->
+            <c:if test="${not empty message}">
+                <div class="alert alert-success">
+                    ${message}
+                </div>
+            </c:if>
             
-            <main>
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Donation Management</h2>
-                        <i class="fas fa-donate card-icon"></i>
-                    </div>
-                    
-                    <c:if test="${not empty message}">
-                        <div class="alert ${message.contains('successfully') ? 'alert-success' : 'alert-danger'}">
-                            ${message}
-                        </div>
-                    </c:if>
-                    
-                    <div class="stat-grid">
-                        <div class="stat-card">
-                            <div class="stat-value">${totalDonations}</div>
-                            <div class="stat-label">Total Donations</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">Rs. ${totalDonationAmount}</div>
-                            <div class="stat-label">Total Amount</div>
-                        </div>
-                    </div>
-                    
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Search donations...">
-                        <button onclick="searchDonations()"><i class="fas fa-search"></i></button>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table id="donationsTable">
-                            <thead>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${totalDonations}</div>
+                    <div class="stat-label">Total Donations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">Rs. ${totalDonationAmount}</div>
+                    <div class="stat-label">Total Amount</div>
+                </div>
+            </div>
+            
+            <!-- Donations list card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Donation Management</h2>
+                    <i class="fas fa-donate card-icon"></i>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search donations...">
+                    <button onclick="searchDonations()"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="donationsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Campaign</th>
+                                <th>Donor</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="donation" items="${allDonations}">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Campaign</th>
-                                    <th>Donor</th>
-                                    <th>Amount</th>
-                                    <th>Payment Method</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="donation" items="${allDonations}">
-                                    <tr>
-                                        <td>${donation.donationId}</td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/CampaignDetailsServlet?id=${donation.campaignId}" 
-                                               style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
-                                                ${donation.campaignTitle}
-                                            </a>
-                                        </td>
-                                        <td>${donation.donorName}</td>
-                                        <td>
-                                            <strong>Rs. 
-                                                <% 
-                                                    MonetaryDonation donation = (MonetaryDonation)pageContext.getAttribute("donation");
-                                                    if(donation.getAmount() != null) {
-                                                        DecimalFormat df = new DecimalFormat("#,##0.00");
-                                                        String formattedAmount = df.format(donation.getAmount());
-                                                        pageContext.setAttribute("formattedAmount", formattedAmount);
-                                                    } else {
-                                                        pageContext.setAttribute("formattedAmount", "0.00");
-                                                    }
-                                                %>
-                                                ${formattedAmount}
-                                            </strong>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-primary">${donation.payment_method}</span>
-                                        </td>
-                                        <td>
+                                    <td>${donation.donationId}</td>
+                                    <td>
+                                        <a href="${pageContext.request.contextPath}/CampaignDetailsServlet?id=${donation.campaignId}" 
+                                           style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                                            ${donation.campaignTitle}
+                                        </a>
+                                    </td>
+                                    <td>${donation.donorName}</td>
+                                    <td>
+                                        <strong>Rs. 
                                             <% 
-                                                MonetaryDonation d = (MonetaryDonation)pageContext.getAttribute("donation");
-                                                if(d.getDonation_date() != null) {
-                                                    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
-                                                    String formattedDate = dateFormat.format(d.getDonation_date());
-                                                    pageContext.setAttribute("formattedDate", formattedDate);
+                                                MonetaryDonation donation = (MonetaryDonation)pageContext.getAttribute("donation");
+                                                if(donation.getAmount() != null) {
+                                                    DecimalFormat df = new DecimalFormat("#,##0.00");
+                                                    String formattedAmount = df.format(donation.getAmount());
+                                                    pageContext.setAttribute("formattedAmount", formattedAmount);
                                                 } else {
-                                                    pageContext.setAttribute("formattedDate", "N/A");
+                                                    pageContext.setAttribute("formattedAmount", "0.00");
                                                 }
                                             %>
-                                            ${formattedDate}
-                                        </td>
-                                        <td>
-                                            <div class="actions">
-                                                <a href="${pageContext.request.contextPath}/AdminDonationsServlet?action=delete&donationId=${donation.donationId}" 
-                                                   class="btn btn-sm btn-primary" style="background-color: var(--danger-color);" title="Delete donation"
-                                                   onclick="return confirm('Are you sure you want to delete this donation?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Pagination for large donation lists -->
-                    <c:if test="${totalDonations > 20}">
-                        <div class="pagination">
-                            <a href="#">&laquo;</a>
-                            <a href="#" class="active">1</a>
-                            <a href="#">2</a>
-                            <a href="#">3</a>
-                            <a href="#">&raquo;</a>
-                        </div>
-                    </c:if>
+                                            ${formattedAmount}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <% 
+                                            MonetaryDonation d = (MonetaryDonation)pageContext.getAttribute("donation");
+                                            if(d.getDonation_date() != null) {
+                                                SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
+                                                String formattedDate = dateFormat.format(d.getDonation_date());
+                                                pageContext.setAttribute("formattedDate", formattedDate);
+                                            } else {
+                                                pageContext.setAttribute("formattedDate", "N/A");
+                                            }
+                                        %>
+                                        ${formattedDate}
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <a href="${pageContext.request.contextPath}/AdminDonationsServlet?action=delete&donationId=${donation.donationId}" 
+                                               class="btn btn-sm btn-primary" style="background-color: var(--danger-color);" title="Delete donation"
+                                               onclick="return confirm('Are you sure you want to delete this donation?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
                 </div>
-            </main>
+                
+                <!-- Pagination for large donation lists -->
+                <c:if test="${totalDonations > 20}">
+                    <div class="pagination">
+                        <a href="#">&laquo;</a>
+                        <a href="#" class="active">1</a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <a href="#">&raquo;</a>
+                    </div>
+                </c:if>
+            </div>
         </div>
     </div>
     

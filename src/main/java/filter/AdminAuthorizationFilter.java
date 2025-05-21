@@ -12,7 +12,13 @@ import java.io.IOException;
 /**
  * Filter that ensures only admin users can access admin pages
  */
-@WebFilter(filterName = "AdminAuthorizationFilter", urlPatterns = {"/admin/*"})
+@WebFilter(filterName = "AdminAuthorizationFilter", urlPatterns = {
+    "/admin/*", 
+    "/AdminDashboardServlet", 
+    "/AdminUsersServlet", 
+    "/AdminCampaignsServlet", 
+    "/AdminDonationsServlet"
+})
 public class AdminAuthorizationFilter implements Filter {
     
     @Override
@@ -27,6 +33,13 @@ public class AdminAuthorizationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession(false);
+        
+        // Exclude logout URL from admin authorization
+        String requestPath = httpRequest.getServletPath();
+        if (requestPath.equals("/admin/logout")) {
+            chain.doFilter(request, response);
+            return;
+        }
         
         boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
         

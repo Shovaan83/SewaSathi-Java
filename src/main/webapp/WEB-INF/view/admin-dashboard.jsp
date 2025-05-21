@@ -268,8 +268,6 @@
     </style>
 </head>
 <body>
-    <c:set var="requestURI" value="${pageContext.request.requestURI}" />
-    
     <!-- Include Admin Sidebar -->
     <jsp:include page="../components/admin-sidebar.jsp" />
     
@@ -362,11 +360,11 @@
                                                     </td>
                                                     <td>
                                                         <div class="actions">
-                                                            <a href="${pageContext.request.contextPath}/AdminDashboardServlet?action=toggleAdmin&userId=${user.user_id}" class="btn btn-sm btn-primary">
+                                                            <a href="${pageContext.request.contextPath}/admin/dashboard?action=toggleAdmin&userId=${user.user_id}" class="btn btn-sm btn-primary">
                                                                 <i class="fas fa-user-shield"></i>
                                                             </a>
                                                             <c:if test="${user.user_id != sessionScope.user.user_id}">
-                                                                <a href="${pageContext.request.contextPath}/AdminDashboardServlet?action=delete&userId=${user.user_id}" 
+                                                                <a href="${pageContext.request.contextPath}/admin/dashboard?action=delete&userId=${user.user_id}" 
                                                                    class="btn btn-sm btn-primary" style="background-color: var(--danger-color);"
                                                                    onclick="return confirm('Are you sure you want to delete this user?')">
                                                                     <i class="fas fa-trash"></i>
@@ -381,7 +379,7 @@
                                 </table>
                             </div>
                             <div style="margin-top: 1rem; text-align: right;">
-                                <a href="${pageContext.request.contextPath}/AdminUsersServlet" class="btn btn-primary">View All Users</a>
+                                <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-primary">View All Users</a>
                             </div>
                         </c:if>
                         <c:if test="${allUsers == null || empty allUsers}">
@@ -432,7 +430,7 @@
                                 </table>
                             </div>
                             <div style="margin-top: 1rem; text-align: right;">
-                                <a href="${pageContext.request.contextPath}/AdminCampaignsServlet" class="btn btn-primary">View All Campaigns</a>
+                                <a href="${pageContext.request.contextPath}/admin/campaigns" class="btn btn-primary">View All Campaigns</a>
                             </div>
                         </c:if>
                         <c:if test="${recentCampaigns == null || empty recentCampaigns}">

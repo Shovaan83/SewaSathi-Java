@@ -45,12 +45,6 @@ public class AuthenticationFilter implements Filter {
         boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
         
         if (isLoggedIn) {
-            // Add a header for CSRF protection
-            if (session.getAttribute("csrfToken") == null) {
-                String csrfToken = generateCSRFToken();
-                session.setAttribute("csrfToken", csrfToken);
-            }
-            
             // User is logged in, continue with the request
             chain.doFilter(request, response);
         } else {
@@ -72,16 +66,9 @@ public class AuthenticationFilter implements Filter {
         }
         return false;
     }
-    
+
     @Override
     public void destroy() {
         // Cleanup code if needed
-    }
-    
-    /**
-     * Generate a random token for CSRF protection
-     */
-    private String generateCSRFToken() {
-        return java.util.UUID.randomUUID().toString();
     }
 } 

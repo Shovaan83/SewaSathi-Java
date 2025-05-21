@@ -1,7 +1,11 @@
 <%@ page import="model.User" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%
+    // Get the context path
+    String contextPath = request.getContextPath();
+    
     // Get user from session
     User user = (User) session.getAttribute("user");
     boolean isLoggedIn = user != null;
@@ -21,6 +25,7 @@
     <title>SewaSathi - Help Through Crowdfunding</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="<%= contextPath %>/assets/css/styles.css">
     <style>
         :root {
             --primary: #ff6b6b;
@@ -565,58 +570,8 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container header-container">
-            <a href="#" class="logo-text">Sewa<span>Sathi</span></a>
-            
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search">
-            </div>
-            
-            <div class="nav-links">
-                <a href="#how-it-works" class="nav-link">How it works</a>
-                <a href="#" class="nav-link">Explore</a>
-                
-                <% if (isLoggedIn) { %>
-                <!-- User is logged in - show user menu -->
-                <div class="user-dropdown">
-                    <div class="user-trigger" id="userDropdownToggle">
-                        <div class="user-avatar">
-                            <%= firstLetter %>
-                        </div>
-                        <span><%= user.getFull_name() != null ? user.getFull_name() : user.getEmail() %></span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-menu" id="userDropdownMenu">
-                        <a href="${pageContext.request.contextPath}/UserProfileServlet">
-                            <i class="fas fa-user"></i> My Profile
-                        </a>
-                        <a href="#">
-                            <i class="fas fa-heart"></i> My Donations
-                        </a>
-                        <a href="#">
-                            <i class="fas fa-hand-holding-heart"></i> My Campaigns
-                        </a>
-                        <a href="${pageContext.request.contextPath}/UpdateProfileServlet">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="${pageContext.request.contextPath}/LogoutServlet">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
-                    </div>
-                </div>
-                <a href="${pageContext.request.contextPath}/CreateCampaignServlet" class="btn btn-primary">Start a Fund</a>
-                <% } else { %>
-                <!-- User is not logged in - show sign in options -->
-                <a href="${pageContext.request.contextPath}/LoginServlet" class="nav-link">Sign In</a>
-                <a href="${pageContext.request.contextPath}/LoginServlet" class="btn btn-primary">Start a Fund</a>
-                <% } %>
-            </div>
-        </div>
-    </header>
+    <!-- Include the common navbar component -->
+    <jsp:include page="/WEB-INF/components/navbar.jsp" />
 
     <!-- Hero Section -->
     <section class="hero">

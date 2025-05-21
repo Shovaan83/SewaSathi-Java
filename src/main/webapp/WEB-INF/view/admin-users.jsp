@@ -38,6 +38,11 @@
             line-height: 1.6;
         }
         
+        .admin-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
         .container {
             width: 100%;
             padding-right: 15px;
@@ -87,48 +92,6 @@
         
         .username {
             font-weight: 600;
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-        }
-        
-        .sidebar {
-            background-color: #fff;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 1.5rem;
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-        }
-        
-        .sidebar-menu li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            color: var(--dark-color);
-            text-decoration: none;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-        }
-        
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .sidebar-menu i {
-            width: 20px;
-            text-align: center;
         }
         
         .card {
@@ -345,184 +308,136 @@
             border-color: var(--primary-color);
         }
         
-        @media (max-width: 992px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                margin-bottom: 1.5rem;
-            }
-            
-            .sidebar-menu {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            
-            .sidebar-menu li {
-                margin-bottom: 0;
+        @media (max-width: 768px) {
+            .admin-content {
+                margin-left: 70px;
             }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container header-content">
-            <a href="${pageContext.request.contextPath}/" class="logo">
-                <i class="fas fa-hands-helping"></i> SewaSathi Admin
-            </a>
-            <div class="user-info">
-                <div class="avatar">
-                    ${firstLetterOfName}
+    <!-- Include Admin Sidebar -->
+    <jsp:include page="../components/admin-sidebar.jsp" />
+    
+    <div class="admin-content">
+        <div class="header">
+            <div class="container">
+                <div class="header-content">
+                    <h1>User Management</h1>
+                    <div class="user-info">
+                        <div class="avatar">
+                            <%= request.getAttribute("firstLetterOfName") %>
+                        </div>
+                        <div class="username">${sessionScope.user.full_name}</div>
+                    </div>
                 </div>
-                <span class="username">${sessionScope.user.full_name}</span>
-                <a href="${pageContext.request.contextPath}/LogoutServlet" class="btn btn-sm btn-primary">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
             </div>
         </div>
-    </header>
-    
-    <div class="container">
-        <div class="dashboard">
-            <aside class="sidebar">
-                <ul class="sidebar-menu">
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminDashboardServlet">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminUsersServlet" class="active">
-                            <i class="fas fa-users"></i> Users
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminCampaignsServlet">
-                            <i class="fas fa-hand-holding-heart"></i> Campaigns
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/AdminDonationsServlet">
-                            <i class="fas fa-donate"></i> Donations
-                        </a>
-                    </li>
-                    <li>
-                        <a href="${pageContext.request.contextPath}/">
-                            <i class="fas fa-home"></i> Back to Site
-                        </a>
-                    </li>
-                </ul>
-            </aside>
-            
-            <main>
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">User Management</h2>
-                        <i class="fas fa-users card-icon"></i>
-                    </div>
-                    
-                    <c:if test="${not empty message}">
-                        <div class="alert ${message.contains('successfully') ? 'alert-success' : 'alert-danger'}">
-                            ${message}
-                        </div>
-                    </c:if>
-                    
-                    <div class="stat-grid">
-                        <div class="stat-card">
-                            <div class="stat-value">${totalUsers}</div>
-                            <div class="stat-label">Total Users</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${adminCount}</div>
-                            <div class="stat-label">Admin Users</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${totalUsers - adminCount}</div>
-                            <div class="stat-label">Regular Users</div>
-                        </div>
-                    </div>
-                    
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Search users...">
-                        <button onclick="searchUsers()"><i class="fas fa-search"></i></button>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table id="usersTable">
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="user" items="${allUsers}">
-                                    <tr>
-                                        <td>${user.user_id}</td>
-                                        <td>
-                                            <div class="user-row">
-                                                <div class="avatar">
-                                                    <c:choose>
-                                                        <c:when test="${user.full_name != null && not empty user.full_name}">
-                                                            ${fn:substring(user.full_name, 0, 1)}
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            ${fn:substring(user.email, 0, 1)}
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </div>
-                                                <span>${user.full_name}</span>
-                                            </div>
-                                        </td>
-                                        <td>${user.email}</td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${user.isAdmin()}">
-                                                    <span class="badge badge-success">Admin</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="badge badge-warning">User</span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </td>
-                                        <td>
-                                            <div class="actions">
-                                                <a href="${pageContext.request.contextPath}/AdminUsersServlet?action=toggleAdmin&userId=${user.user_id}" 
-                                                   class="btn btn-sm btn-primary" title="${user.isAdmin() ? 'Remove admin rights' : 'Make admin'}">
-                                                    <i class="fas fa-user-shield"></i>
-                                                </a>
-                                                <c:if test="${user.user_id != sessionScope.user.user_id}">
-                                                    <a href="${pageContext.request.contextPath}/AdminUsersServlet?action=delete&userId=${user.user_id}" 
-                                                       class="btn btn-sm btn-primary" style="background-color: var(--danger-color);" title="Delete user"
-                                                       onclick="return confirm('Are you sure you want to delete this user?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </c:if>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Pagination for large user lists -->
-                    <c:if test="${totalUsers > 20}">
-                        <div class="pagination">
-                            <a href="#">&laquo;</a>
-                            <a href="#" class="active">1</a>
-                            <a href="#">2</a>
-                            <a href="#">3</a>
-                            <a href="#">&raquo;</a>
-                        </div>
-                    </c:if>
+        
+        <div class="container">
+            <!-- Display success/error message if any -->
+            <c:if test="${not empty message}">
+                <div class="alert alert-success">
+                    ${message}
                 </div>
-            </main>
+            </c:if>
+            
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${totalUsers}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${adminCount}</div>
+                    <div class="stat-label">Admins</div>
+                </div>
+            </div>
+            
+            <!-- Users list card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">User Management</h2>
+                    <i class="fas fa-users card-icon"></i>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search users...">
+                    <button onclick="searchUsers()"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="user" items="${allUsers}">
+                                <tr>
+                                    <td>${user.user_id}</td>
+                                    <td>
+                                        <div class="user-row">
+                                            <div class="avatar">
+                                                <c:choose>
+                                                    <c:when test="${user.full_name != null && not empty user.full_name}">
+                                                        ${fn:substring(user.full_name, 0, 1)}
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${fn:substring(user.email, 0, 1)}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                            <span>${user.full_name}</span>
+                                        </div>
+                                    </td>
+                                    <td>${user.email}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${user.isAdmin()}">
+                                                <span class="badge badge-success">Admin</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge badge-warning">User</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <a href="${pageContext.request.contextPath}/AdminUsersServlet?action=toggleAdmin&userId=${user.user_id}" 
+                                               class="btn btn-sm btn-primary" title="${user.isAdmin() ? 'Remove admin rights' : 'Make admin'}">
+                                                <i class="fas fa-user-shield"></i>
+                                            </a>
+                                            <c:if test="${user.user_id != sessionScope.user.user_id}">
+                                                <a href="${pageContext.request.contextPath}/AdminUsersServlet?action=delete&userId=${user.user_id}" 
+                                                   class="btn btn-sm btn-primary" style="background-color: var(--danger-color);" title="Delete user"
+                                                   onclick="return confirm('Are you sure you want to delete this user?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </c:if>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination for large user lists -->
+                <c:if test="${totalUsers > 20}">
+                    <div class="pagination">
+                        <a href="#">&laquo;</a>
+                        <a href="#" class="active">1</a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <a href="#">&raquo;</a>
+                    </div>
+                </c:if>
+            </div>
         </div>
     </div>
     

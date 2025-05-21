@@ -3,6 +3,7 @@ package util;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import model.DatabaseConnection;
 
 /**
  * Database initialization listener that runs when the application starts
@@ -18,6 +19,7 @@ public class DatabaseInitListener implements ServletContextListener {
     
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        // Cleanup code if needed
+        // Close the connection pool when the application shuts down
+        DatabaseConnection.closePool();
     }
 } 

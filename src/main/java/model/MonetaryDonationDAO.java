@@ -12,9 +12,9 @@ public class MonetaryDonationDAO {
     public static List<MonetaryDonation> getAllDonations() {
         List<MonetaryDonation> donations = new ArrayList<>();
         String sql = "SELECT d.*, c.title as campaign_title, u.full_name as donor_name " +
-                     "FROM monetary_donation d " +
-                     "LEFT JOIN campaign c ON d.campaign_id = c.campaign_id " +
-                     "LEFT JOIN user u ON d.user_id = u.user_id " +
+                     "FROM monetarydonations d " +
+                     "LEFT JOIN campaigns c ON d.campaign_id = c.campaign_id " +
+                     "LEFT JOIN users u ON d.user_id = u.user_id " +
                      "ORDER BY d.donation_date DESC";
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -44,8 +44,8 @@ public class MonetaryDonationDAO {
     public static List<MonetaryDonation> getDonationsByCampaignId(int campaignId) {
         List<MonetaryDonation> donations = new ArrayList<>();
         String sql = "SELECT d.*, u.full_name as donor_name " +
-                     "FROM monetary_donation d " +
-                     "LEFT JOIN user u ON d.user_id = u.user_id " +
+                     "FROM monetarydonations d " +
+                     "LEFT JOIN users u ON d.user_id = u.user_id " +
                      "WHERE d.campaign_id = ? " +
                      "ORDER BY d.donation_date DESC";
         
@@ -75,8 +75,8 @@ public class MonetaryDonationDAO {
     public static List<MonetaryDonation> getDonationsByUserId(int userId) {
         List<MonetaryDonation> donations = new ArrayList<>();
         String sql = "SELECT d.*, c.title as campaign_title " +
-                     "FROM monetary_donation d " +
-                     "LEFT JOIN campaign c ON d.campaign_id = c.campaign_id " +
+                     "FROM monetarydonations d " +
+                     "LEFT JOIN campaigns c ON d.campaign_id = c.campaign_id " +
                      "WHERE d.user_id = ? " +
                      "ORDER BY d.donation_date DESC";
         
@@ -104,8 +104,8 @@ public class MonetaryDonationDAO {
     
     // Add a new donation
     public static boolean addDonation(MonetaryDonation donation) {
-        String sql = "INSERT INTO monetary_donation (campaign_id, user_id, amount, payment_method, transaction_id, donation_date) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO monetarydonations (campaign_id, user_id, amount, transaction_id, donation_date) " +
+                     "VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -113,9 +113,8 @@ public class MonetaryDonationDAO {
             pstmt.setInt(1, donation.getCampaign_id());
             pstmt.setInt(2, donation.getUser_id());
             pstmt.setBigDecimal(3, donation.getAmount());
-            pstmt.setString(4, donation.getPayment_method());
-            pstmt.setString(5, donation.getTransaction_id());
-            pstmt.setTimestamp(6, new Timestamp(donation.getDonation_date().getTime()));
+            pstmt.setString(4, donation.getTransaction_id());
+            pstmt.setTimestamp(5, new Timestamp(donation.getDonation_date().getTime()));
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -127,7 +126,7 @@ public class MonetaryDonationDAO {
     
     // Delete a donation
     public static boolean deleteDonation(int donationId) {
-        String sql = "DELETE FROM monetary_donation WHERE donation_id = ?";
+        String sql = "DELETE FROM monetarydonations WHERE donation_id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -144,7 +143,7 @@ public class MonetaryDonationDAO {
     
     // Get total donation amount by campaign ID
     public static BigDecimal getTotalDonationAmountByCampaignId(int campaignId) {
-        String sql = "SELECT SUM(amount) FROM monetary_donation WHERE campaign_id = ?";
+        String sql = "SELECT SUM(amount) FROM monetarydonations WHERE campaign_id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -168,11 +167,10 @@ public class MonetaryDonationDAO {
         int campaignId = rs.getInt("campaign_id");
         int userId = rs.getInt("user_id");
         BigDecimal amount = rs.getBigDecimal("amount");
-        String paymentMethod = rs.getString("payment_method");
         String transactionId = rs.getString("transaction_id");
         Timestamp timestamp = rs.getTimestamp("donation_date");
         Date donationDate = timestamp != null ? new Date(timestamp.getTime()) : null;
         
-        return new MonetaryDonation(donationId, campaignId, userId, amount, paymentMethod, transactionId, donationDate);
+        return new MonetaryDonation(donationId, campaignId, userId, amount, transactionId, donationDate);
     }
 }

@@ -76,14 +76,14 @@ CREATE TABLE ClothingDonationImages (
 
 -- Monetary Donations
 CREATE TABLE MonetaryDonations (
-                                   donation_id INT AUTO_INCREMENT PRIMARY KEY,
-                                   user_id INT,
-                                   campaign_id INT,
-                                   amount DECIMAL(10,2),
-                                   status ENUM('pending', 'successful', 'failed', 'refunded') DEFAULT 'pending',
-                                   donated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   FOREIGN KEY (user_id) REFERENCES Users(user_id),
-                                   FOREIGN KEY (campaign_id) REFERENCES Campaigns(campaign_id)
+    donation_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    campaign_id INT,
+    amount DECIMAL(10,2),
+    transaction_id VARCHAR(100),
+    donation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (campaign_id) REFERENCES Campaigns(campaign_id)
 );
 
 -- Images for Monetary Donations (e.g. receipt)

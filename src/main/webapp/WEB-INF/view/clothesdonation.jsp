@@ -70,8 +70,7 @@
         </div>
 
         <div class="donation-form-container">
-            <form action="${pageContext.request.contextPath}/processClothesdonation" method="post" class="donation-form" id="clothesDonationForm">
-                <jsp:include page="/WEB-INF/components/csrf.jsp" />
+            <form action="${pageContext.request.contextPath}/clothesdonation" method="post" class="donation-form" id="clothesDonationForm">
                 <div class="form-group">
                     <label for="donorName">Your Name</label>
                     <input type="text" id="donorName" name="donorName"
