@@ -1,0 +1,4 @@
+This file is a placeholder for a background image.
+In a real environment, you would replace this with an actual image file (jpg/png/webp).
+The image should be a soft, blurred background that works well with the red gradient overlay.
+Suggested content: an image related to community support or charity work, with soft colors. 

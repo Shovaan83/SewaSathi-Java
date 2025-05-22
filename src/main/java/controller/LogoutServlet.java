@@ -6,12 +6,17 @@ import jakarta.servlet.annotation.*;
 
 import java.io.IOException;
 
-@WebServlet(name = "LogoutServlet", value = "/LogoutServlet")
+@WebServlet(name = "LogoutServlet", urlPatterns = {"/LogoutServlet", "/logout", "/admin/logout"})
 public class LogoutServlet extends HttpServlet {
     private static final String REMEMBER_ME_COOKIE_NAME = "rememberMe";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Check if this is an admin logout
+        String referer = request.getHeader("Referer");
+        boolean isAdminLogout = request.getServletPath().contains("/admin/") || 
+                               (referer != null && referer.contains("/admin/"));
+        
         // Get the current session
         HttpSession session = request.getSession(false);
 
@@ -38,10 +43,10 @@ public class LogoutServlet extends HttpServlet {
             }
         }
 
-        // Add a message to be displayed on the login page
+        // Create a new session for the success message
         request.getSession().setAttribute("success", "You have been successfully logged out.");
-
-        // Redirect to login page
+        
+        // Redirect to login page with a clean URL that won't be intercepted by filters
         response.sendRedirect(request.getContextPath() + "/LoginServlet");
     }
 

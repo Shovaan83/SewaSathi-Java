@@ -31,10 +31,6 @@ public class SessionUtil {
         // Set session timeout
         session.setMaxInactiveInterval(SESSION_TIMEOUT);
         
-        // Create CSRF token
-        String csrfToken = java.util.UUID.randomUUID().toString();
-        session.setAttribute("csrfToken", csrfToken);
-        
         // If remember me is checked, create a persistent cookie
         if (rememberMe) {
             // Create a secure token (in production, this should be a secure random token stored in the DB)

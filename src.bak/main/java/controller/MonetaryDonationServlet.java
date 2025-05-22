@@ -8,15 +8,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Servlet that handles clothes donation requests
+ * Servlet that handles monetary donation requests
  */
-@WebServlet(urlPatterns = {"/clothes-donation", "/clothes-donation.do"})
-public class ClothesDonationServlet extends HttpServlet {
+@WebServlet(urlPatterns = {"/monetary-donation", "/donation.do"})
+public class MonetaryDonationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Forward the request to the clothes donation JSP page
-        request.getRequestDispatcher("/WEB-INF/view/clothesdonation.jsp").forward(request, response);
+        // Simply forward to the monetary donation JSP page which has mock data
+        request.getRequestDispatcher("/WEB-INF/view/monetarydonation.jsp").forward(request, response);
     }
 }

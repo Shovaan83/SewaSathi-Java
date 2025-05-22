@@ -230,7 +230,6 @@
                         </div>
                     </c:if>
                     <form action="${pageContext.request.contextPath}/contact" method="post">
-                        <jsp:include page="/WEB-INF/components/csrf.jsp" />
                         <div class="form-group">
                             <label for="name">Your Name</label>
                             <input type="text" id="name" name="name" required>

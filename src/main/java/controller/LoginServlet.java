@@ -8,24 +8,14 @@ import model.UserDAO;
 import java.io.IOException;
 import java.util.UUID;
 
-@WebServlet(name = "LoginServlet", value = "/LoginServlet")
+@WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet", "/login"})
 public class LoginServlet extends HttpServlet {
     private static final String REMEMBER_ME_COOKIE_NAME = "rememberMe";
     private static final int COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Generate a CSRF token for the login form
         HttpSession session = request.getSession(true);
-        
-        // Ensure csrf token is set
-        if (session.getAttribute("csrfToken") == null) {
-            String csrfToken = UUID.randomUUID().toString();
-            session.setAttribute("csrfToken", csrfToken);
-            System.out.println("New CSRF token generated in LoginServlet GET: " + csrfToken);
-        } else {
-            System.out.println("Existing CSRF token in LoginServlet GET: " + session.getAttribute("csrfToken"));
-        }
         
         // Check if user is already logged in via remember me cookie
         Cookie[] cookies = request.getCookies();
@@ -67,14 +57,8 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         
-        // Print debug info
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            System.out.println("Session exists in LoginServlet POST. CSRF token: " + session.getAttribute("csrfToken"));
-        } else {
-            System.out.println("No session in LoginServlet POST");
-            session = request.getSession(true);
-        }
+        // Get the session
+        HttpSession session = request.getSession(true);
         
         // Validate input
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
@@ -94,11 +78,6 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("loggedIn", true);
             session.setAttribute("isAdmin", user.isAdmin());
             
-            // Create a new CSRF token
-            String csrfToken = UUID.randomUUID().toString();
-            session.setAttribute("csrfToken", csrfToken);
-            System.out.println("New CSRF token set in LoginServlet POST after successful login: " + csrfToken);
-            
             // Handle remember me functionality
             String rememberMe = request.getParameter("rememberMe");
             if (rememberMe != null && rememberMe.equals("on")) {
@@ -111,7 +90,9 @@ public class LoginServlet extends HttpServlet {
 
             // Redirect based on role
             if (user.isAdmin()) {
-                response.sendRedirect(request.getContextPath() + "/AdminDashboardServlet");
+                // Set a session attribute to indicate this is a direct admin login
+                session.setAttribute("directAdminAccess", true);
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             } else {
                 response.sendRedirect(request.getContextPath() + "/");
             }

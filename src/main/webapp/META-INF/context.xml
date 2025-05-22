@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/SewaSathi">
+    <!-- Configuration settings for this web application -->
+    <Resources>
+        <PreResources className="org.apache.catalina.webresources.DirResourceSet"
+                     base="D:/Programming/Java/SewaSathi-Java/src/main/webapp"
+                     webAppMount="/"/>
+    </Resources>
+</Context> 

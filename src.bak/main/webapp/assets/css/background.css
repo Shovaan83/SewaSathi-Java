@@ -1,0 +1,23 @@
+/* 
+ * This file contains CSS for the background gradient used in login and registration pages 
+ * It can be used to avoid duplicating the same CSS code in multiple pages
+ */
+
+.auth-background {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(255, 107, 107, 0.3)), 
+                url('../images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .auth-background {
+        padding: 10px;
+    }
+} 

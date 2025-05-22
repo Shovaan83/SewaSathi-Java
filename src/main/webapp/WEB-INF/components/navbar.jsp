@@ -298,9 +298,14 @@
 
     <div class="navbar-menu" id="navbar-menu">
         <a href="${pageContext.request.contextPath}/" class="navbar-link">Home</a>
-        <a href="${pageContext.request.contextPath}/campgain" class="navbar-link">Campaigns</a>
+        <a href="${pageContext.request.contextPath}/campaigns" class="navbar-link">Campaigns</a>
         <a href="${pageContext.request.contextPath}/about" class="navbar-link">About Us</a>
-        <a href="${pageContext.request.contextPath}/contact" class="navbar-link">Contact Us</a>
+        <a href="${pageContext.request.contextPath}/contact" class="navbar-link">Contact</a>
+        <c:if test="${not empty user && user.role_id != 1}">
+            <a href="${pageContext.request.contextPath}/create-campaign" class="start-fund-btn">
+                <i class="fas fa-plus-circle"></i> Start a Campaign
+            </a>
+        </c:if>
     </div>
 
     <div class="search-container" id="search-container">
@@ -317,10 +322,10 @@
             <i class="fas fa-chevron-down"></i>
 
             <div class="donate-menu">
-                <a href="${pageContext.request.contextPath}/clothesdonation" class="donate-menu-item">
+                <a href="${pageContext.request.contextPath}/clothes-donation" class="donate-menu-item">
                     <i class="fas fa-tshirt"></i> Clothes Donation
                 </a>
-                <a href="${pageContext.request.contextPath}/monetarydonation" class="donate-menu-item">
+                <a href="${pageContext.request.contextPath}/monetary-donation" class="donate-menu-item">
                     <i class="fas fa-money-bill-wave"></i> Monetary Donation
                 </a>
             </div>
@@ -328,10 +333,6 @@
 
         <c:choose>
             <c:when test="${sessionScope.user != null}">
-                <!-- User is logged in -->
-                <a href="${pageContext.request.contextPath}/create-campaign" class="start-fund-btn" style="margin-left: 1rem;">
-                    <i class="fas fa-plus"></i> Start a Fund
-                </a>
                 
                 <div class="navbar-user" style="margin-left: 1rem;">
                     <div class="navbar-avatar">
@@ -350,19 +351,16 @@
                         <a href="${pageContext.request.contextPath}/profile" class="user-menu-item">
                             <i class="fas fa-user"></i> My Profile
                         </a>
-                        <a href="${pageContext.request.contextPath}/my-campaigns" class="user-menu-item">
-                            <i class="fas fa-bullhorn"></i> My Campaigns
-                        </a>
-                        <a href="${pageContext.request.contextPath}/my-donations" class="user-menu-item">
-                            <i class="fas fa-hand-holding-heart"></i> My Donations
-                        </a>
-                        <c:if test="${sessionScope.user.isAdmin()}">
-                            <a href="${pageContext.request.contextPath}/admin/dashboard" class="user-menu-item">
-                                <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                        <c:if test="${user.role_id != 1}">
+                            <a href="${pageContext.request.contextPath}/create-campaign" class="user-menu-item">
+                                <i class="fas fa-plus-circle"></i> Create Campaign
+                            </a>
+                            <a href="${pageContext.request.contextPath}/my-campaigns" class="user-menu-item">
+                                <i class="fas fa-bullhorn"></i> My Campaigns
                             </a>
                         </c:if>
-                        <a href="${pageContext.request.contextPath}/account-settings" class="user-menu-item">
-                            <i class="fas fa-cog"></i> Settings
+                        <a href="${pageContext.request.contextPath}/my-donations" class="user-menu-item">
+                            <i class="fas fa-hand-holding-heart"></i> My Donations
                         </a>
                         <div style="height: 1px; background-color: #e1e1e1; margin: 0.5rem 0;"></div>
                         <a href="${pageContext.request.contextPath}/logout" class="user-menu-item">

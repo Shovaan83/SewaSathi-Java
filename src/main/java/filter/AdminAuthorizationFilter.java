@@ -12,7 +12,13 @@ import java.io.IOException;
 /**
  * Filter that ensures only admin users can access admin pages
  */
-@WebFilter(filterName = "AdminAuthorizationFilter", urlPatterns = {"/admin/*"})
+@WebFilter(filterName = "AdminAuthorizationFilter", urlPatterns = {
+    "/admin/*", 
+    "/AdminDashboardServlet", 
+    "/AdminUsersServlet", 
+    "/AdminCampaignsServlet", 
+    "/AdminDonationsServlet"
+})
 public class AdminAuthorizationFilter implements Filter {
     
     @Override
@@ -28,14 +34,26 @@ public class AdminAuthorizationFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession(false);
         
+        // Exclude logout URL from admin authorization
+        String requestPath = httpRequest.getServletPath();
+        if (requestPath.equals("/admin/logout")) {
+            chain.doFilter(request, response);
+            return;
+        }
+        
         boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
         
         if (isLoggedIn) {
             User user = (User) session.getAttribute("user");
-            // Check if user has admin role (assuming role_id 1 is admin)
-            boolean isAdmin = (user.getRole_id() == 1);
+            // Check if user has admin role
+            boolean isAdmin = user.isAdmin();
             
             if (isAdmin) {
+                // If this was a direct admin login, clear the flag to prevent further issues
+                if (session.getAttribute("directAdminAccess") != null) {
+                    session.removeAttribute("directAdminAccess");
+                }
+                
                 // User is an admin, continue with the request
                 chain.doFilter(request, response);
                 return;
