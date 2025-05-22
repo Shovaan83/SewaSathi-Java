@@ -185,6 +185,7 @@ public class Campaign {
     private transient String creatorName;
     private transient int progressPercentage;
     private transient BigDecimal collectedAmount;
+    private transient int totalDonations;
     
     public String getCreatorName() {
         return creatorName;
@@ -206,7 +207,15 @@ public class Campaign {
         return collectedAmount;
     }
     
-    public void setCollectedAmount(double collectedAmount) {
-        this.collectedAmount = BigDecimal.valueOf(collectedAmount);
+    public void setCollectedAmount(BigDecimal collectedAmount) {
+        this.collectedAmount = collectedAmount;
+    }
+
+    public int getTotalDonations() {
+        return totalDonations;
+    }
+
+    public void setTotalDonations(int totalDonations) {
+        this.totalDonations = totalDonations;
     }
 } 

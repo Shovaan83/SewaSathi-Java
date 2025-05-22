@@ -16,47 +16,39 @@ public class ClothesDonationDAO {
     // Method to create clothes donation table if it doesn't exist
     public static void createClothesDonationTableIfNotExists() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "CREATE TABLE IF NOT EXISTS clothes_donations (" +
+            String sql = "CREATE TABLE IF NOT EXISTS ClothingDonations (" +
                     "donation_id INT AUTO_INCREMENT PRIMARY KEY," +
-                    "campaign_id INT NOT NULL," +
-                    "user_id INT NOT NULL," +
-                    "clothes_type VARCHAR(50) NOT NULL," +
-                    "quantity INT NOT NULL," +
-                    "size VARCHAR(20)," +
-                    "`condition` VARCHAR(20) NOT NULL," +
-                    "pickup_address TEXT NOT NULL," +
-                    "pickup_date DATE NOT NULL," +
-                    "status VARCHAR(20) DEFAULT 'pending'," +
-                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                    "FOREIGN KEY (campaign_id) REFERENCES campaigns(campaign_id)," +
-                    "FOREIGN KEY (user_id) REFERENCES users(user_id)" +
+                    "user_id INT," +
+                    "campaign_id INT," +
+                    "description TEXT," +
+                    "address VARCHAR(255)," +
+                    "status ENUM('pending', 'picked_up', 'rejected') DEFAULT 'pending'," +
+                    "donated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    "FOREIGN KEY (user_id) REFERENCES Users(user_id)," +
+                    "FOREIGN KEY (campaign_id) REFERENCES Campaigns(campaign_id)" +
                     ")";
             
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                System.out.println("Clothes donations table created or already exists.");
+                System.out.println("Clothing donations table created or already exists.");
             }
         } catch (SQLException e) {
-            System.err.println("Error creating clothes donations table: " + e.getMessage());
+            System.err.println("Error creating clothing donations table: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
     // Method to add a new clothes donation
     public boolean addClothesDonation(ClothesDonation donation) {
-        String sql = "INSERT INTO clothingdonations (campaign_id, user_id, clothes_type, quantity, size, `condition`, pickup_address, pickup_date, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ClothingDonations (campaign_id, user_id, description, address, status) " +
+                    "VALUES (?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, donation.getCampaign_id());
             pstmt.setInt(2, donation.getUser_id());
-            pstmt.setString(3, donation.getClothes_type());
-            pstmt.setInt(4, donation.getQuantity());
-            pstmt.setString(5, donation.getSize());
-            pstmt.setString(6, donation.getCondition());
-            pstmt.setString(7, donation.getPickup_address());
-            pstmt.setDate(8, new java.sql.Date(donation.getPickup_date().getTime()));
-            pstmt.setString(9, donation.getStatus());
+            pstmt.setString(3, donation.getDescription());
+            pstmt.setString(4, donation.getAddress());
+            pstmt.setString(5, donation.getStatus());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -81,7 +73,7 @@ public class ClothesDonationDAO {
     // Method to get clothes donations by campaign ID
     public List<ClothesDonation> getClothesDonationsByCampaign(int campaignId) {
         List<ClothesDonation> donations = new ArrayList<>();
-        String sql = "SELECT * FROM clothingdonations WHERE campaign_id = ? ORDER BY created_at DESC";
+        String sql = "SELECT * FROM ClothingDonations WHERE campaign_id = ? ORDER BY donated_at DESC";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, campaignId);
@@ -102,7 +94,7 @@ public class ClothesDonationDAO {
     // Method to get clothes donations by user ID
     public List<ClothesDonation> getClothesDonationsByUser(int userId) {
         List<ClothesDonation> donations = new ArrayList<>();
-        String sql = "SELECT * FROM clothingdonations WHERE user_id = ? ORDER BY created_at DESC";
+        String sql = "SELECT * FROM ClothingDonations WHERE user_id = ? ORDER BY donated_at DESC";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
@@ -122,7 +114,7 @@ public class ClothesDonationDAO {
     
     // Method to update donation status
     public boolean updateDonationStatus(int donationId, String status) {
-        String sql = "UPDATE clothingdonations SET status = ? WHERE donation_id = ?";
+        String sql = "UPDATE ClothingDonations SET status = ? WHERE donation_id = ?";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, status);
@@ -142,22 +134,17 @@ public class ClothesDonationDAO {
         int donationId = rs.getInt("donation_id");
         int campaignId = rs.getInt("campaign_id");
         int userId = rs.getInt("user_id");
-        String clothesType = rs.getString("clothes_type");
-        int quantity = rs.getInt("quantity");
-        String size = rs.getString("size");
-        String condition = rs.getString("condition");
-        String pickupAddress = rs.getString("pickup_address");
-        Date pickupDate = rs.getDate("pickup_date");
+        String description = rs.getString("description");
+        String address = rs.getString("address");
         String status = rs.getString("status");
-        Date createdAt = rs.getTimestamp("created_at");
+        Date donatedAt = rs.getTimestamp("donated_at");
         
-        return new ClothesDonation(donationId, campaignId, userId, clothesType, quantity, size, 
-                                  condition, pickupAddress, pickupDate, status, createdAt);
+        return new ClothesDonation(donationId, campaignId, userId, description, address, status, donatedAt);
     }
     
     // Method to get total clothes donations count by campaign
     public int getTotalClothesDonationsCount(int campaignId) {
-        String sql = "SELECT COUNT(*) FROM clothes_donations WHERE campaign_id = ?";
+        String sql = "SELECT COUNT(*) FROM ClothingDonations WHERE campaign_id = ?";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, campaignId);

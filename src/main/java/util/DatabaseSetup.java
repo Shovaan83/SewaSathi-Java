@@ -88,7 +88,6 @@ public class DatabaseSetup {
                     "donation_id INT AUTO_INCREMENT PRIMARY KEY," +
                     "campaign_id INT NOT NULL," +
                     "user_id INT NOT NULL," +
-                    "clothes_type VARCHAR(50) NOT NULL," +
                     "quantity INT NOT NULL," +
                     "size VARCHAR(20)," +
                     "`condition` VARCHAR(20) NOT NULL," +

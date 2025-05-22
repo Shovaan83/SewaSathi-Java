@@ -183,15 +183,102 @@ public class CampaignDAO {
 
     // Method to delete a campaign
     public static boolean deleteCampaign(int campaignId) {
-        String sql = "DELETE FROM campaigns WHERE campaign_id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, campaignId);
-            int rowsAffected = pstmt.executeUpdate();
-            
-            return rowsAffected > 0;
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Start transaction
+            conn.setAutoCommit(false);
+            try {
+                // First delete associated campaign images
+                String deleteImagesSql = "DELETE FROM campaignimages WHERE campaign_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(deleteImagesSql)) {
+                    pstmt.setInt(1, campaignId);
+                    pstmt.executeUpdate();
+                }
+                
+                // Get all clothing donation IDs for this campaign
+                List<Integer> clothingDonationIds = new ArrayList<>();
+                String getClothingDonationIdsSql = "SELECT donation_id FROM clothingdonations WHERE campaign_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(getClothingDonationIdsSql)) {
+                    pstmt.setInt(1, campaignId);
+                    ResultSet rs = pstmt.executeQuery();
+                    while (rs.next()) {
+                        clothingDonationIds.add(rs.getInt("donation_id"));
+                    }
+                }
+                
+                // Delete clothing donation images for each donation
+                if (!clothingDonationIds.isEmpty()) {
+                    String deleteClothingDonationImagesSql = "DELETE FROM clothingdonationimages WHERE donation_id = ?";
+                    try (PreparedStatement pstmt = conn.prepareStatement(deleteClothingDonationImagesSql)) {
+                        for (Integer donationId : clothingDonationIds) {
+                            pstmt.setInt(1, donationId);
+                            pstmt.executeUpdate();
+                        }
+                    }
+                    
+                    // Delete donation tracking records for each donation
+                    String deleteTrackingSql = "DELETE FROM donationtracking WHERE donation_id = ?";
+                    try (PreparedStatement pstmt = conn.prepareStatement(deleteTrackingSql)) {
+                        for (Integer donationId : clothingDonationIds) {
+                            pstmt.setInt(1, donationId);
+                            pstmt.executeUpdate();
+                        }
+                    }
+                }
+                
+                // Delete associated clothing donations
+                String deleteClothingDonationsSql = "DELETE FROM clothingdonations WHERE campaign_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(deleteClothingDonationsSql)) {
+                    pstmt.setInt(1, campaignId);
+                    pstmt.executeUpdate();
+                }
+                
+                // Get all monetary donation IDs for this campaign
+                List<Integer> monetaryDonationIds = new ArrayList<>();
+                String getMonetaryDonationIdsSql = "SELECT donation_id FROM monetarydonations WHERE campaign_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(getMonetaryDonationIdsSql)) {
+                    pstmt.setInt(1, campaignId);
+                    ResultSet rs = pstmt.executeQuery();
+                    while (rs.next()) {
+                        monetaryDonationIds.add(rs.getInt("donation_id"));
+                    }
+                }
+                
+                // Delete monetary donation images for each donation
+                if (!monetaryDonationIds.isEmpty()) {
+                    String deleteMonetaryDonationImagesSql = "DELETE FROM monetarydonationimages WHERE donation_id = ?";
+                    try (PreparedStatement pstmt = conn.prepareStatement(deleteMonetaryDonationImagesSql)) {
+                        for (Integer donationId : monetaryDonationIds) {
+                            pstmt.setInt(1, donationId);
+                            pstmt.executeUpdate();
+                        }
+                    }
+                }
+                
+                // Delete associated monetary donations
+                String deleteMonetaryDonationsSql = "DELETE FROM monetarydonations WHERE campaign_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(deleteMonetaryDonationsSql)) {
+                    pstmt.setInt(1, campaignId);
+                    pstmt.executeUpdate();
+                }
+                
+                // Finally delete the campaign
+                String deleteCampaignSql = "DELETE FROM campaigns WHERE campaign_id = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(deleteCampaignSql)) {
+                    pstmt.setInt(1, campaignId);
+                    int rowsAffected = pstmt.executeUpdate();
+                    
+                    // Commit transaction
+                    conn.commit();
+                    return rowsAffected > 0;
+                }
+            } catch (SQLException e) {
+                // Rollback transaction on error
+                conn.rollback();
+                throw e;
+            } finally {
+                // Reset auto-commit
+                conn.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

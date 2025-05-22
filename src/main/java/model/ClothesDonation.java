@@ -6,44 +6,30 @@ public class ClothesDonation {
     private int donation_id;
     private int campaign_id;
     private int user_id;
-    private String clothes_type;
-    private int quantity;
-    private String size;
-    private String condition;
-    private String pickup_address;
-    private Date pickup_date;
+    private String description;
+    private String address;
     private String status;
-    private Date created_at;
+    private Date donated_at;
     
     // Constructor
-    public ClothesDonation(int donation_id, int campaign_id, int user_id, String clothes_type, 
-                         int quantity, String size, String condition, String pickup_address,
-                         Date pickup_date, String status, Date created_at) {
+    public ClothesDonation(int donation_id, int campaign_id, int user_id, 
+                         String description, String address, String status, Date donated_at) {
         this.donation_id = donation_id;
         this.campaign_id = campaign_id;
         this.user_id = user_id;
-        this.clothes_type = clothes_type;
-        this.quantity = quantity;
-        this.size = size;
-        this.condition = condition;
-        this.pickup_address = pickup_address;
-        this.pickup_date = pickup_date;
+        this.description = description;
+        this.address = address;
         this.status = status;
-        this.created_at = created_at;
+        this.donated_at = donated_at;
     }
     
     // Constructor for new donation (no ID yet)
-    public ClothesDonation(int campaign_id, int user_id, String clothes_type, 
-                         int quantity, String size, String condition, String pickup_address,
-                         Date pickup_date) {
+    public ClothesDonation(int campaign_id, int user_id, 
+                         String description, String address) {
         this.campaign_id = campaign_id;
         this.user_id = user_id;
-        this.clothes_type = clothes_type;
-        this.quantity = quantity;
-        this.size = size;
-        this.condition = condition;
-        this.pickup_address = pickup_address;
-        this.pickup_date = pickup_date;
+        this.description = description;
+        this.address = address;
         this.status = "pending";
     }
     
@@ -72,52 +58,20 @@ public class ClothesDonation {
         this.user_id = user_id;
     }
 
-    public String getClothes_type() {
-        return clothes_type;
+    public String getDescription() {
+        return description;
     }
 
-    public void setClothes_type(String clothes_type) {
-        this.clothes_type = clothes_type;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public String getAddress() {
+        return address;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getPickup_address() {
-        return pickup_address;
-    }
-
-    public void setPickup_address(String pickup_address) {
-        this.pickup_address = pickup_address;
-    }
-
-    public Date getPickup_date() {
-        return pickup_date;
-    }
-
-    public void setPickup_date(Date pickup_date) {
-        this.pickup_date = pickup_date;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getStatus() {
@@ -128,11 +82,11 @@ public class ClothesDonation {
         this.status = status;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getDonated_at() {
+        return donated_at;
     }
 
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
+    public void setDonated_at(Date donated_at) {
+        this.donated_at = donated_at;
     }
 } 

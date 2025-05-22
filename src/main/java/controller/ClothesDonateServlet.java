@@ -42,6 +42,7 @@ public class ClothesDonateServlet extends HttpServlet {
         try {
             int campaignId = Integer.parseInt(campaignIdStr);
             
+            // Get campaign details
             try (Connection conn = DatabaseConnection.getConnection()) {
                 CampaignDAO campaignDAO = new CampaignDAO(conn);
                 Campaign campaign = campaignDAO.getCampaignById(campaignId);
@@ -52,24 +53,14 @@ public class ClothesDonateServlet extends HttpServlet {
                     return;
                 }
                 
-                // Check if campaign accepts clothes donations
-                if (!"clothes".equals(campaign.getDonation_type())) {
-                    request.setAttribute("error", "This campaign does not accept clothes donations");
-                    request.getRequestDispatcher("/campaign?id=" + campaignId).forward(request, response);
-                    return;
-                }
-                
-                // Set campaign in request for the donation form
                 request.setAttribute("campaign", campaign);
-                
-                // Forward to the clothes donation form
                 request.getRequestDispatcher("/WEB-INF/view/clothes-donate.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Invalid campaign ID");
             request.getRequestDispatcher("/campaigns").forward(request, response);
         } catch (Exception e) {
-            request.setAttribute("error", "Error processing request: " + e.getMessage());
+            request.setAttribute("error", "Error loading campaign: " + e.getMessage());
             request.getRequestDispatcher("/campaigns").forward(request, response);
         }
     }
@@ -77,93 +68,56 @@ public class ClothesDonateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
         
-        if (currentUser == null) {
-            session.setAttribute("error", "You must be logged in to donate clothes");
-            response.sendRedirect(request.getContextPath() + "/LoginServlet");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
-        // Extract form data
-        String campaignIdStr = request.getParameter("campaignId");
-        String clothesType = request.getParameter("clothesType");
-        String quantityStr = request.getParameter("quantity");
-        String size = request.getParameter("size");
-        String condition = request.getParameter("condition");
-        String pickupAddress = request.getParameter("pickupAddress");
-        String pickupDateStr = request.getParameter("pickupDate");
-        
-        // Validate form data
-        if (campaignIdStr == null || campaignIdStr.trim().isEmpty() ||
-            clothesType == null || clothesType.trim().isEmpty() ||
-            quantityStr == null || quantityStr.trim().isEmpty() ||
-            size == null || size.trim().isEmpty() ||
-            condition == null || condition.trim().isEmpty() ||
-            pickupAddress == null || pickupAddress.trim().isEmpty() ||
-            pickupDateStr == null || pickupDateStr.trim().isEmpty()) {
-            
+
+        String campaignId = request.getParameter("campaignId");
+        String description = request.getParameter("description");
+        String address = request.getParameter("address");
+
+        if (campaignId == null || description == null || address == null || 
+            campaignId.trim().isEmpty() || description.trim().isEmpty() || address.trim().isEmpty()) {
             request.setAttribute("error", "All fields are required");
-            doGet(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/clothes-donate.jsp").forward(request, response);
             return;
         }
-        
+
         try {
-            int campaignId = Integer.parseInt(campaignIdStr);
-            int quantity = Integer.parseInt(quantityStr);
+            CampaignDAO campaignDAO = new CampaignDAO(DatabaseConnection.getConnection());
+            Campaign campaign = campaignDAO.getCampaignById(Integer.parseInt(campaignId));
             
-            if (quantity <= 0) {
-                request.setAttribute("error", "Quantity must be greater than zero");
-                doGet(request, response);
+            if (campaign == null) {
+                request.setAttribute("error", "Campaign not found");
+                request.getRequestDispatcher("/WEB-INF/view/clothes-donate.jsp").forward(request, response);
                 return;
             }
+
+            ClothesDonationDAO clothesDonationDAO = new ClothesDonationDAO(DatabaseConnection.getConnection());
+            ClothesDonation donation = new ClothesDonation(
+                Integer.parseInt(campaignId),
+                user.getUser_id(),
+                description,
+                address
+            );
+
+            boolean success = clothesDonationDAO.addClothesDonation(donation);
             
-            // Parse pickup date
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date pickupDate = dateFormat.parse(pickupDateStr);
-            
-            // Check if pickup date is in the future
-            Date today = new Date();
-            if (pickupDate.before(today)) {
-                request.setAttribute("error", "Pickup date must be in the future");
-                doGet(request, response);
-                return;
+            if (success) {
+                // Set success message and redirect to campaign detail page
+                session.setAttribute("successMessage", "Thank you for your donation! We will contact you shortly to arrange pickup.");
+                response.sendRedirect(request.getContextPath() + "/campaign-detail?id=" + campaignId + "&type=clothes");
+            } else {
+                request.setAttribute("error", "Failed to process donation. Please try again.");
+                request.getRequestDispatcher("/WEB-INF/view/clothes-donate.jsp").forward(request, response);
             }
-            
-            try (Connection conn = DatabaseConnection.getConnection()) {
-                // Create clothes donation object
-                ClothesDonation donation = new ClothesDonation(
-                    campaignId,
-                    currentUser.getUser_id(),
-                    clothesType,
-                    quantity,
-                    size,
-                    condition,
-                    pickupAddress,
-                    pickupDate
-                );
-                
-                // Save to database
-                ClothesDonationDAO donationDAO = new ClothesDonationDAO(conn);
-                boolean success = donationDAO.addClothesDonation(donation);
-                
-                if (success) {
-                    session.setAttribute("success", "Thank you for your donation! We will contact you to arrange the pickup.");
-                    response.sendRedirect(request.getContextPath() + "/campaign?id=" + campaignId);
-                } else {
-                    request.setAttribute("error", "Failed to process your donation. Please try again.");
-                    doGet(request, response);
-                }
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Please enter valid numbers");
-            doGet(request, response);
-        } catch (ParseException e) {
-            request.setAttribute("error", "Please enter a valid date format (YYYY-MM-DD)");
-            doGet(request, response);
         } catch (Exception e) {
-            request.setAttribute("error", "Error processing donation: " + e.getMessage());
-            doGet(request, response);
+            e.printStackTrace();
+            request.setAttribute("error", "An error occurred. Please try again.");
+            request.getRequestDispatcher("/WEB-INF/view/clothes-donate.jsp").forward(request, response);
         }
     }
 } 

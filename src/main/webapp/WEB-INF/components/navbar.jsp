@@ -333,10 +333,6 @@
 
         <c:choose>
             <c:when test="${sessionScope.user != null}">
-                <!-- User is logged in -->
-                <a href="${pageContext.request.contextPath}/create-campaign" class="start-fund-btn" style="margin-left: 1rem;">
-                    <i class="fas fa-plus"></i> Start a Fund
-                </a>
                 
                 <div class="navbar-user" style="margin-left: 1rem;">
                     <div class="navbar-avatar">
