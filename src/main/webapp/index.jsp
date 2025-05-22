@@ -599,7 +599,7 @@
                 </div>
                 
                 <div class="initiative-card">
-                    <img src="${pageContext.request.contextPath}/assets/images/cancer.jpg" alt="Fight against Cancer" class="initiative-img" onerror="this.src='https://images.unsplash.com/photo-1579154392429-0e6b4e850ad2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';">
+                    <img src="${pageContext.request.contextPath}/assets/images/cancer.webp" alt="Fight against Cancer" class="initiative-img" onerror="this.src='https://images.unsplash.com/photo-1579154392429-0e6b4e850ad2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';">
                     <div class="initiative-info">
                         <h3 class="initiative-title">Help patients to fight against Cancer</h3>
                         <p class="initiative-description">Fund treatment and support for cancer patients in Nepal</p>
@@ -646,7 +646,7 @@
             
             <div class="option-cards">
                 <div class="initiative-card">
-                    <img src="${pageContext.request.contextPath}/assets/images/cancer-feature.jpg" alt="Fight Cancer" class="initiative-img" onerror="this.src='https://images.unsplash.com/photo-1579154341098-e4e158cc8992?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';">
+                    <img src="${pageContext.request.contextPath}/assets/images/cancer.webp" alt="Fight Cancer" class="initiative-img" onerror="this.src='https://images.unsplash.com/photo-1579154341098-e4e158cc8992?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';">
                     <div class="initiative-info">
                         <h3 class="initiative-title">Fundraise for patients to fight against Cancer</h3>
                         <p class="initiative-description">Support cancer treatment for those who cannot afford it</p>
@@ -655,7 +655,7 @@
                 </div>
                 
                 <div class="initiative-card">
-                    <img src="${pageContext.request.contextPath}/assets/images/landslide-feature.jpg" alt="Landslide Relief" class="initiative-img" onerror="this.src='https://images.unsplash.com/photo-1547683895-3c82f4caf54a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';">
+                    <img src="${pageContext.request.contextPath}/assets/images/landslide.jpg" alt="Landslide Relief" class="initiative-img" onerror="this.src='https://images.unsplash.com/photo-1547683895-3c82f4caf54a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';">
                     <div class="initiative-info">
                         <h3 class="initiative-title">Fundraise for Landslide</h3>
                         <p class="initiative-description">Help communities recover from destructive landslides</p>

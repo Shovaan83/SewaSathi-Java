@@ -359,9 +359,6 @@
                                 <i class="fas fa-bullhorn"></i> My Campaigns
                             </a>
                         </c:if>
-                        <a href="${pageContext.request.contextPath}/my-donations" class="user-menu-item">
-                            <i class="fas fa-hand-holding-heart"></i> My Donations
-                        </a>
                         <div style="height: 1px; background-color: #e1e1e1; margin: 0.5rem 0;"></div>
                         <a href="${pageContext.request.contextPath}/logout" class="user-menu-item">
                             <i class="fas fa-sign-out-alt"></i> Logout
